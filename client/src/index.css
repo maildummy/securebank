@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222, 47%, 11%);
+  --muted: hsl(210, 40%, 98%);
+  --muted-foreground: hsl(215, 13%, 65%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222, 47%, 11%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(222, 47%, 11%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
+  --primary: hsl(221, 83%, 53%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(222, 47%, 11%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(222, 47%, 11%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(221, 83%, 53%);
+  --radius: 0.5rem;
+
+  /* Banking specific colors */
+  --bank-blue-50: hsl(214, 100%, 97%);
+  --bank-blue-100: hsl(214, 95%, 93%);
+  --bank-blue-500: hsl(221, 83%, 53%);
+  --bank-blue-600: hsl(221, 83%, 46%);
+  --bank-blue-700: hsl(221, 83%, 39%);
+  --bank-blue-900: hsl(222, 47%, 25%);
+}
+
+.dark {
+  --background: hsl(224, 71%, 4%);
+  --foreground: hsl(213, 31%, 91%);
+  --muted: hsl(223, 47%, 11%);
+  --muted-foreground: hsl(215, 14%, 65%);
+  --popover: hsl(224, 71%, 4%);
+  --popover-foreground: hsl(213, 31%, 91%);
+  --card: hsl(224, 71%, 4%);
+  --card-foreground: hsl(213, 31%, 91%);
+  --border: hsl(216, 34%, 17%);
+  --input: hsl(216, 34%, 17%);
+  --primary: hsl(221, 83%, 53%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(222, 47%, 11%);
+  --secondary-foreground: hsl(213, 31%, 91%);
+  --accent: hsl(216, 34%, 17%);
+  --accent-foreground: hsl(213, 31%, 91%);
+  --destructive: hsl(0, 63%, 31%);
+  --destructive-foreground: hsl(213, 31%, 91%);
+  --ring: hsl(221, 83%, 53%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer utilities {
+  .bank-gradient {
+    background: linear-gradient(135deg, hsl(var(--bank-blue-700)), hsl(var(--bank-blue-600)), hsl(var(--bank-blue-500)));
+  }
+  
+  .bank-blue-50 { color: hsl(var(--bank-blue-50)); }
+  .bank-blue-100 { color: hsl(var(--bank-blue-100)); }
+  .bank-blue-500 { color: hsl(var(--bank-blue-500)); }
+  .bank-blue-600 { color: hsl(var(--bank-blue-600)); }
+  .bank-blue-700 { color: hsl(var(--bank-blue-700)); }
+  .bank-blue-900 { color: hsl(var(--bank-blue-900)); }
+
+  .bg-bank-blue-50 { background-color: hsl(var(--bank-blue-50)); }
+  .bg-bank-blue-100 { background-color: hsl(var(--bank-blue-100)); }
+  .bg-bank-blue-500 { background-color: hsl(var(--bank-blue-500)); }
+  .bg-bank-blue-600 { background-color: hsl(var(--bank-blue-600)); }
+  .bg-bank-blue-700 { background-color: hsl(var(--bank-blue-700)); }
+  .bg-bank-blue-900 { background-color: hsl(var(--bank-blue-900)); }
+
+  .border-bank-blue-200 { border-color: hsl(214, 85%, 85%); }
+  .border-bank-blue-600 { border-color: hsl(var(--bank-blue-600)); }
+
+  .text-bank-blue-600 { color: hsl(var(--bank-blue-600)); }
+  .text-bank-blue-700 { color: hsl(var(--bank-blue-700)); }
+
+  .hover\:bg-bank-blue-50:hover { background-color: hsl(var(--bank-blue-50)); }
+  .hover\:bg-bank-blue-700:hover { background-color: hsl(var(--bank-blue-700)); }
+  .hover\:text-bank-blue-700:hover { color: hsl(var(--bank-blue-700)); }
+  .hover\:text-bank-blue-900:hover { color: hsl(var(--bank-blue-900)); }
+
+  .focus\:ring-bank-blue-500:focus { 
+    --tw-ring-color: hsl(var(--bank-blue-500)); 
+  }
+}
