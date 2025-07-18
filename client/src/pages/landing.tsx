@@ -32,15 +32,15 @@ export default function LandingPage() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Redirect if already authenticated
-  if (user) {
-    if (user.isAdmin) {
-      setLocation("/admin");
-    } else {
-      setLocation("/dashboard");
-    }
-    return null;
-  }
+  // Optional: Redirect if already authenticated (commented out to allow viewing landing page)
+  // if (user) {
+  //   if (user.isAdmin) {
+  //     setLocation("/admin");
+  //   } else {
+  //     setLocation("/dashboard");
+  //   }
+  //   return null;
+  // }
 
   const handleSignIn = () => {
     setAuthMode("signin");
@@ -101,14 +101,26 @@ export default function LandingPage() {
               <a href="#services" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Services</a>
               <a href="#testimonials" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Testimonials</a>
               <a href="#faq" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">FAQ</a>
-              <div className="flex items-center space-x-3">
-                <Button onClick={handleSignIn} variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-                  Sign In
-                </Button>
-                <Button onClick={handleSignUp} className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
-                  Open Account
-                </Button>
-              </div>
+              {user ? (
+                <div className="flex items-center space-x-3">
+                  <span className="text-gray-600">Welcome, {user.firstName}</span>
+                  <Button 
+                    onClick={() => setLocation(user.isAdmin ? "/admin" : "/dashboard")}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {user.isAdmin ? "Admin Dashboard" : "My Dashboard"}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-3">
+                  <Button onClick={handleSignIn} variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                    Sign In
+                  </Button>
+                  <Button onClick={handleSignUp} className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white">
+                    Open Account
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="lg:hidden">
               <button 
@@ -148,31 +160,70 @@ export default function LandingPage() {
                   FAQ
                 </a>
                 <div className="pt-4 space-y-2">
-                  <Button 
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      handleSignIn();
-                    }} 
-                    variant="outline" 
-                    className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
-                  >
-                    Sign In
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      handleSignUp();
-                    }} 
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
-                  >
-                    Open Account
-                  </Button>
+                  {user ? (
+                    <>
+                      <div className="px-3 py-2 text-gray-600 text-center">
+                        Welcome, {user.firstName}
+                      </div>
+                      <Button 
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          setLocation(user.isAdmin ? "/admin" : "/dashboard");
+                        }} 
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        {user.isAdmin ? "Admin Dashboard" : "My Dashboard"}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          handleSignIn();
+                        }} 
+                        variant="outline" 
+                        className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
+                      >
+                        Sign In
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          handleSignUp();
+                        }} 
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+                      >
+                        Open Account
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
           )}
         </div>
       </nav>
+
+      {/* Quick Access Info */}
+      <div className="bg-blue-600 text-white py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-8 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">🏠 Landing Page:</span>
+              <span>You are here</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">👤 Admin Access:</span>
+              <span>Sign in with: admin@securebank.com | password: admin123</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">🎯 Navigation:</span>
+              <span>Buttons above for dashboards</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-blue-50 via-white to-blue-50 py-20 lg:py-32 overflow-hidden">
