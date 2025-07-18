@@ -84,10 +84,10 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={mode === "signup" ? "sm:max-w-2xl max-h-[90vh] overflow-y-auto" : "sm:max-w-md"}>
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
+          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 z-10"
         >
           <X className="h-5 w-5" />
         </button>
@@ -163,17 +163,18 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
               <p className="text-gray-600 text-center">Join SecureBank and start banking securely</p>
             </DialogHeader>
 
-            <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4 mt-6">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-6 mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="firstName">First Name</Label>
                   <Input
                     id="firstName"
                     placeholder="John"
+                    className="mt-1"
                     {...signUpForm.register("firstName")}
                   />
                   {signUpForm.formState.errors.firstName && (
-                    <p className="text-sm text-red-600">{signUpForm.formState.errors.firstName.message}</p>
+                    <p className="text-sm text-red-600 mt-1">{signUpForm.formState.errors.firstName.message}</p>
                   )}
                 </div>
                 <div>
@@ -181,64 +182,73 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
                   <Input
                     id="lastName"
                     placeholder="Doe"
+                    className="mt-1"
                     {...signUpForm.register("lastName")}
                   />
                   {signUpForm.formState.errors.lastName && (
-                    <p className="text-sm text-red-600">{signUpForm.formState.errors.lastName.message}</p>
+                    <p className="text-sm text-red-600 mt-1">{signUpForm.formState.errors.lastName.message}</p>
                   )}
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  {...signUpForm.register("email")}
-                />
-                {signUpForm.formState.errors.email && (
-                  <p className="text-sm text-red-600">{signUpForm.formState.errors.email.message}</p>
-                )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    className="mt-1"
+                    {...signUpForm.register("email")}
+                  />
+                  {signUpForm.formState.errors.email && (
+                    <p className="text-sm text-red-600 mt-1">{signUpForm.formState.errors.email.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    placeholder="johndoe"
+                    className="mt-1"
+                    {...signUpForm.register("username")}
+                  />
+                  {signUpForm.formState.errors.username && (
+                    <p className="text-sm text-red-600 mt-1">{signUpForm.formState.errors.username.message}</p>
+                  )}
+                </div>
               </div>
 
-              <div>
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  placeholder="johndoe"
-                  {...signUpForm.register("username")}
-                />
-                {signUpForm.formState.errors.username && (
-                  <p className="text-sm text-red-600">{signUpForm.formState.errors.username.message}</p>
-                )}
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Create a strong password"
+                    className="mt-1"
+                    {...signUpForm.register("password")}
+                  />
+                  <PasswordStrength password={signUpForm.watch("password")} />
+                  {signUpForm.formState.errors.password && (
+                    <p className="text-sm text-red-600 mt-1">{signUpForm.formState.errors.password.message}</p>
+                  )}
+                </div>
 
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Create a strong password"
-                  {...signUpForm.register("password")}
-                />
-                <PasswordStrength password={signUpForm.watch("password")} />
-                {signUpForm.formState.errors.password && (
-                  <p className="text-sm text-red-600">{signUpForm.formState.errors.password.message}</p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="Confirm your password"
-                  {...signUpForm.register("confirmPassword")}
-                />
-                {signUpForm.formState.errors.confirmPassword && (
-                  <p className="text-sm text-red-600">{signUpForm.formState.errors.confirmPassword.message}</p>
-                )}
+                <div>
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Confirm your password"
+                    className="mt-1"
+                    {...signUpForm.register("confirmPassword")}
+                  />
+                  {signUpForm.formState.errors.confirmPassword && (
+                    <p className="text-sm text-red-600 mt-1">{signUpForm.formState.errors.confirmPassword.message}</p>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -247,10 +257,11 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
                   id="phone"
                   type="tel"
                   placeholder="+1 (555) 123-4567"
+                  className="mt-1"
                   {...signUpForm.register("phone")}
                 />
                 {signUpForm.formState.errors.phone && (
-                  <p className="text-sm text-red-600">{signUpForm.formState.errors.phone.message}</p>
+                  <p className="text-sm text-red-600 mt-1">{signUpForm.formState.errors.phone.message}</p>
                 )}
               </div>
 

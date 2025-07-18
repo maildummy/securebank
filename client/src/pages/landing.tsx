@@ -30,6 +30,7 @@ export default function LandingPage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Redirect if already authenticated
   if (user) {
@@ -81,7 +82,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center">
-              <div className="flex items-center space-x-3">
+              <button 
+                onClick={() => window.location.href = '/'}
+                className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+              >
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
                   <Building className="w-6 h-6 text-white" />
                 </div>
@@ -91,14 +95,14 @@ export default function LandingPage() {
                   </span>
                   <div className="text-xs text-gray-500 -mt-1">Professional Banking</div>
                 </div>
-              </div>
+              </button>
             </div>
             <div className="hidden lg:flex items-center space-x-8">
-              <a href="#personal" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Personal</a>
-              <a href="#business" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Business</a>
               <a href="#services" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Services</a>
+              <a href="#testimonials" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Testimonials</a>
+              <a href="#faq" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">FAQ</a>
               <a href="#about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">About</a>
-              <a href="#support" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Support</a>
+              <a href="#contact" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Contact</a>
               <div className="flex items-center space-x-3">
                 <Button onClick={handleSignIn} variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
                   Sign In
@@ -109,13 +113,37 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="lg:hidden">
-              <button className="text-gray-700 hover:text-blue-600 p-2">
+              <button 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-gray-700 hover:text-blue-600 p-2"
+              >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
                 </svg>
               </button>
             </div>
           </div>
+          
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden border-t border-gray-100 bg-white">
+              <div className="px-4 pt-2 pb-3 space-y-1">
+                <a href="#services" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">Services</a>
+                <a href="#testimonials" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">Testimonials</a>
+                <a href="#faq" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">FAQ</a>
+                <a href="#about" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">About</a>
+                <a href="#contact" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">Contact</a>
+                <div className="pt-4 space-y-2">
+                  <Button onClick={handleSignIn} variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50">
+                    Sign In
+                  </Button>
+                  <Button onClick={handleSignUp} className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+                    Open Account
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
@@ -170,9 +198,9 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative hidden lg:block">
               <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-blue-800 rounded-3xl opacity-10 blur-xl"></div>
-              <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+              <div className="relative bg-white rounded-3xl shadow-2xl p-6 lg:p-8 border border-gray-100 max-w-md mx-auto">
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -185,24 +213,24 @@ export default function LandingPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900">$12,486.43</div>
+                      <div className="text-xl lg:text-2xl font-bold text-gray-900">$12,486.43</div>
                       <div className="text-sm text-green-600">+2.5% this month</div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 mb-2">
                         <TrendingUp className="w-5 h-5 text-green-600" />
                         <span className="text-sm font-medium text-green-800">Savings</span>
                       </div>
-                      <div className="text-lg font-bold text-green-900 mt-1">$8,234.12</div>
+                      <div className="text-lg font-bold text-green-900">$8,234.12</div>
                     </div>
                     <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 mb-2">
                         <PiggyBank className="w-5 h-5 text-blue-600" />
                         <span className="text-sm font-medium text-blue-800">Investment</span>
                       </div>
-                      <div className="text-lg font-bold text-blue-900 mt-1">$15,692.85</div>
+                      <div className="text-lg font-bold text-blue-900">$15,692.85</div>
                     </div>
                   </div>
                 </div>
@@ -302,57 +330,95 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-gray-50">
+      <section id="testimonials" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
             <p className="text-xl text-gray-600">Real stories from real customers who trust SecureBank</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Sarah Johnson",
-                role: "Small Business Owner",
-                content: "SecureBank transformed how I manage my business finances. The integration between personal and business accounts is seamless.",
-                rating: 5
-              },
-              {
-                name: "Michael Chen",
-                role: "Software Engineer",
-                content: "The mobile app is incredible. I can handle all my banking needs on the go with the security and features I need.",
-                rating: 5
-              },
-              {
-                name: "Emma Williams",
-                role: "Marketing Director",
-                content: "Customer service is outstanding. They're always available when I need help, and the response time is amazing.",
-                rating: 5
-              }
-            ].map((testimonial, index) => (
-              <div key={index} className="bg-white p-8 rounded-2xl shadow-lg">
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-600 mb-6 leading-relaxed">"{testimonial.content}"</p>
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-semibold">
-                    {testimonial.name.split(' ').map(n => n[0]).join('')}
+          <div className="overflow-x-auto">
+            <div className="flex space-x-6 pb-4" style={{ width: 'max-content' }}>
+              {[
+                {
+                  name: "Sarah Johnson",
+                  role: "Small Business Owner",
+                  content: "SecureBank transformed how I manage my business finances. The integration between personal and business accounts is seamless.",
+                  rating: 5
+                },
+                {
+                  name: "Michael Chen",
+                  role: "Software Engineer",
+                  content: "The mobile app is incredible. I can handle all my banking needs on the go with the security and features I need.",
+                  rating: 5
+                },
+                {
+                  name: "Emma Williams",
+                  role: "Marketing Director",
+                  content: "Customer service is outstanding. They're always available when I need help, and the response time is amazing.",
+                  rating: 5
+                },
+                {
+                  name: "David Rodriguez",
+                  role: "Freelance Designer",
+                  content: "The instant transfers and low fees have made managing client payments so much easier. Highly recommend SecureBank!",
+                  rating: 5
+                },
+                {
+                  name: "Lisa Thompson",
+                  role: "Restaurant Owner",
+                  content: "Their business banking solutions helped streamline our financial operations. The support team is incredibly knowledgeable.",
+                  rating: 5
+                },
+                {
+                  name: "James Park",
+                  role: "Tech Startup Founder",
+                  content: "As a growing startup, we needed reliable banking. SecureBank's scalable solutions grew with our business perfectly.",
+                  rating: 5
+                },
+                {
+                  name: "Maria Garcia",
+                  role: "Financial Advisor",
+                  content: "I recommend SecureBank to all my clients. Their investment platform and financial tools are top-notch.",
+                  rating: 5
+                },
+                {
+                  name: "Robert Kim",
+                  role: "E-commerce Entrepreneur",
+                  content: "International transactions are seamless with SecureBank. No hidden fees and excellent exchange rates.",
+                  rating: 5
+                },
+                {
+                  name: "Jennifer Walsh",
+                  role: "Nonprofit Director",
+                  content: "SecureBank's transparent pricing and dedicated nonprofit support have been invaluable for our organization.",
+                  rating: 5
+                }
+              ].map((testimonial, index) => (
+                <div key={index} className="bg-white p-6 rounded-2xl shadow-lg flex-shrink-0 w-80">
+                  <div className="flex items-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                    ))}
                   </div>
-                  <div className="ml-4">
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-500">{testimonial.role}</div>
+                  <p className="text-gray-600 mb-6 leading-relaxed text-sm">"{testimonial.content}"</p>
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                      {testimonial.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <div className="ml-4">
+                      <div className="font-semibold text-gray-900 text-sm">{testimonial.name}</div>
+                      <div className="text-xs text-gray-500">{testimonial.role}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-white">
+      <section id="faq" className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
@@ -412,15 +478,18 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-2">
-              <div className="flex items-center space-x-3 mb-6">
+              <button 
+                onClick={() => window.location.href = '/'}
+                className="flex items-center space-x-3 mb-6 hover:opacity-80 transition-opacity"
+              >
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
                   <Building className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <span className="text-2xl font-bold">SecureBank</span>
+                  <span className="text-2xl font-bold text-white">SecureBank</span>
                   <div className="text-sm text-gray-400 -mt-1">Professional Banking</div>
                 </div>
-              </div>
+              </button>
               <p className="text-gray-400 leading-relaxed mb-6 max-w-md">
                 Your trusted partner in modern banking solutions. We're committed to providing secure, innovative financial services that help you achieve your goals.
               </p>
