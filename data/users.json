@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@securebank.com",
+    "password": "$2b$10$wJG1HZA5CV0CrznVcbIA5u6jQtxkaEih1herfIswtKHr/yc1.h2bK",
+    "firstName": "Admin",
+    "lastName": "User",
+    "status": "approved",
+    "isAdmin": true,
+    "createdAt": "2025-07-18T05:35:11.007Z",
+    "updatedAt": "2025-07-18T05:35:11.007Z"
+  }
+]

@@ -1,6 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import fs from "fs/promises";
+import path from "path";
 
 const app = express();
 app.use(express.json());
@@ -36,7 +38,42 @@ app.use((req, res, next) => {
   next();
 });
 
+// Initialize default admin user
+async function initializeData() {
+  const dataDir = path.join(process.cwd(), "data");
+  const usersFile = path.join(dataDir, "users.json");
+  
+  try {
+    await fs.access(dataDir);
+  } catch {
+    await fs.mkdir(dataDir, { recursive: true });
+  }
+
+  try {
+    await fs.access(usersFile);
+  } catch {
+    // Create default admin user
+    const bcrypt = await import("bcrypt");
+    const defaultAdmin = {
+      id: 1,
+      username: "admin",
+      email: "admin@securebank.com",
+      password: await bcrypt.hash("admin123", 10),
+      firstName: "Admin",
+      lastName: "User",
+      status: "approved",
+      isAdmin: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    await fs.writeFile(usersFile, JSON.stringify([defaultAdmin], null, 2));
+    log("✅ Default admin user created: admin@securebank.com / admin123");
+  }
+}
+
 (async () => {
+  await initializeData();
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

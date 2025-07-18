@@ -1,6 +1,8 @@
-import { users, messages, sessions, type User, type InsertUser, type Message, type InsertMessage } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, or, and } from "drizzle-orm";
+import { type User, type InsertUser, type Message, type InsertMessage, type Session } from "@shared/schema";
+import path from "path";
+import fs from "fs/promises";
+
+const DATA_DIR = path.join(process.cwd(), "data");
 
 export interface IStorage {
   // User operations
@@ -25,84 +27,121 @@ export interface IStorage {
   deleteSession(sessionId: string): Promise<void>;
 }
 
-export class DatabaseStorage implements IStorage {
+class LocalFileStorage implements IStorage {
+  private async ensureDataDir(): Promise<void> {
+    try {
+      await fs.access(DATA_DIR);
+    } catch {
+      await fs.mkdir(DATA_DIR, { recursive: true });
+    }
+  }
+
+  private async readJSONFile<T>(filename: string, defaultValue: T): Promise<T> {
+    await this.ensureDataDir();
+    const filePath = path.join(DATA_DIR, filename);
+    try {
+      const data = await fs.readFile(filePath, "utf-8");
+      return JSON.parse(data);
+    } catch {
+      return defaultValue;
+    }
+  }
+
+  private async writeJSONFile<T>(filename: string, data: T): Promise<void> {
+    await this.ensureDataDir();
+    const filePath = path.join(DATA_DIR, filename);
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+  }
+
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
+    const users = await this.readJSONFile<User[]>("users.json", []);
+    return users.find(user => user.id === id);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user || undefined;
+    const users = await this.readJSONFile<User[]>("users.json", []);
+    return users.find(user => user.username === username);
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user || undefined;
+    const users = await this.readJSONFile<User[]>("users.json", []);
+    return users.find(user => user.email === email);
   }
 
   async getUserByIdentifier(identifier: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(
-      or(eq(users.email, identifier), eq(users.username, identifier))
-    );
-    return user || undefined;
+    const users = await this.readJSONFile<User[]>("users.json", []);
+    return users.find(user => user.email === identifier || user.username === identifier);
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
-    return user;
+    const users = await this.readJSONFile<User[]>("users.json", []);
+    const newUser: User = {
+      ...insertUser,
+      id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+      status: "pending",
+      isAdmin: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    users.push(newUser);
+    await this.writeJSONFile("users.json", users);
+    return newUser;
   }
 
   async updateUserStatus(id: number, status: string): Promise<User | undefined> {
-    const [user] = await db
-      .update(users)
-      .set({ status, updatedAt: new Date() })
-      .where(eq(users.id, id))
-      .returning();
-    return user || undefined;
+    const users = await this.readJSONFile<User[]>("users.json", []);
+    const userIndex = users.findIndex(user => user.id === id);
+    
+    if (userIndex === -1) return undefined;
+    
+    users[userIndex] = {
+      ...users[userIndex],
+      status: status as any,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    await this.writeJSONFile("users.json", users);
+    return users[userIndex];
   }
 
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users).orderBy(desc(users.createdAt));
+    const users = await this.readJSONFile<User[]>("users.json", []);
+    return users.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   async createMessage(message: InsertMessage): Promise<Message> {
-    const [newMessage] = await db
-      .insert(messages)
-      .values(message)
-      .returning();
+    const messages = await this.readJSONFile<Message[]>("messages.json", []);
+    const newMessage: Message = {
+      ...message,
+      id: messages.length > 0 ? Math.max(...messages.map(m => m.id)) + 1 : 1,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    
+    messages.push(newMessage);
+    await this.writeJSONFile("messages.json", messages);
     return newMessage;
   }
 
   async getMessagesBetweenUsers(userId1: number, userId2: number): Promise<Message[]> {
-    return await db
-      .select()
-      .from(messages)
-      .where(
-        or(
-          and(eq(messages.senderId, userId1), eq(messages.receiverId, userId2)),
-          and(eq(messages.senderId, userId2), eq(messages.receiverId, userId1))
-        )
+    const messages = await this.readJSONFile<Message[]>("messages.json", []);
+    return messages
+      .filter(msg => 
+        (msg.senderId === userId1 && msg.receiverId === userId2) ||
+        (msg.senderId === userId2 && msg.receiverId === userId1)
       )
-      .orderBy(desc(messages.createdAt));
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   async getConversationsForUser(userId: number): Promise<any[]> {
-    // Get latest message for each conversation
-    const conversations = await db
-      .select()
-      .from(messages)
-      .where(or(eq(messages.senderId, userId), eq(messages.receiverId, userId)))
-      .orderBy(desc(messages.createdAt));
-
-    // Group by conversation partner
+    const messages = await this.readJSONFile<Message[]>("messages.json", []);
+    const userMessages = messages.filter(msg => msg.senderId === userId || msg.receiverId === userId);
+    
     const grouped = new Map();
-    for (const msg of conversations) {
+    for (const msg of userMessages) {
       const partnerId = msg.senderId === userId ? msg.receiverId : msg.senderId;
-      if (!grouped.has(partnerId)) {
+      if (!grouped.has(partnerId) || new Date(msg.createdAt) > new Date(grouped.get(partnerId).createdAt)) {
         grouped.set(partnerId, msg);
       }
     }
@@ -111,31 +150,39 @@ export class DatabaseStorage implements IStorage {
   }
 
   async markMessagesAsRead(senderId: number, receiverId: number): Promise<void> {
-    await db
-      .update(messages)
-      .set({ isRead: true })
-      .where(and(eq(messages.senderId, senderId), eq(messages.receiverId, receiverId)));
+    const messages = await this.readJSONFile<Message[]>("messages.json", []);
+    const updatedMessages = messages.map(msg => {
+      if (msg.senderId === senderId && msg.receiverId === receiverId) {
+        return { ...msg, isRead: true };
+      }
+      return msg;
+    });
+    
+    await this.writeJSONFile("messages.json", updatedMessages);
   }
 
   async getUnreadMessageCount(userId: number): Promise<number> {
-    const result = await db
-      .select()
-      .from(messages)
-      .where(and(eq(messages.receiverId, userId), eq(messages.isRead, false)));
-    return result.length;
+    const messages = await this.readJSONFile<Message[]>("messages.json", []);
+    return messages.filter(msg => msg.receiverId === userId && !msg.isRead).length;
   }
 
   async createSession(sessionId: string, userId: number, expiresAt: Date): Promise<void> {
-    await db.insert(sessions).values({ id: sessionId, userId, expiresAt });
+    const sessions = await this.readJSONFile<Session[]>("sessions.json", []);
+    const newSession: Session = {
+      id: sessionId,
+      userId,
+      expiresAt: expiresAt.toISOString(),
+    };
+    
+    sessions.push(newSession);
+    await this.writeJSONFile("sessions.json", sessions);
   }
 
   async getSession(sessionId: string): Promise<{ userId: number } | undefined> {
-    const [session] = await db
-      .select()
-      .from(sessions)
-      .where(eq(sessions.id, sessionId));
+    const sessions = await this.readJSONFile<Session[]>("sessions.json", []);
+    const session = sessions.find(s => s.id === sessionId);
     
-    if (!session || session.expiresAt < new Date()) {
+    if (!session || new Date(session.expiresAt) < new Date()) {
       return undefined;
     }
     
@@ -143,8 +190,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteSession(sessionId: string): Promise<void> {
-    await db.delete(sessions).where(eq(sessions.id, sessionId));
+    const sessions = await this.readJSONFile<Session[]>("sessions.json", []);
+    const filteredSessions = sessions.filter(s => s.id !== sessionId);
+    await this.writeJSONFile("sessions.json", filteredSessions);
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new LocalFileStorage();
