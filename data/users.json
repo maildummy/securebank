@@ -10,5 +10,19 @@
     "isAdmin": true,
     "createdAt": "2025-07-18T05:35:11.007Z",
     "updatedAt": "2025-07-18T05:35:11.007Z"
+  },
+  {
+    "username": "jude_ogwu",
+    "email": "judeogwu564@gmail.com",
+    "password": "$2b$10$ALxXlMQ8z.PVW42Kx4CrvOYecQzFil1EljXh005x5n.33teOB0WiW",
+    "firstName": "Jude",
+    "lastName": "Ogwu",
+    "phone": "+2348144919893",
+    "confirmPassword": "Nothing.",
+    "id": 2,
+    "status": "pending",
+    "isAdmin": false,
+    "createdAt": "2025-07-18T06:41:58.543Z",
+    "updatedAt": "2025-07-18T06:41:58.543Z"
   }
 ]

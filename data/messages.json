@@ -1,0 +1,18 @@
+[
+  {
+    "senderId": 2,
+    "receiverId": 1,
+    "content": "Hey",
+    "id": 1,
+    "isRead": false,
+    "createdAt": "2025-07-18T06:42:55.264Z"
+  },
+  {
+    "senderId": 2,
+    "receiverId": 1,
+    "content": "hi",
+    "id": 2,
+    "isRead": false,
+    "createdAt": "2025-07-18T06:43:08.224Z"
+  }
+]
