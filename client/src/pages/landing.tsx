@@ -101,8 +101,6 @@ export default function LandingPage() {
               <a href="#services" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Services</a>
               <a href="#testimonials" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Testimonials</a>
               <a href="#faq" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">FAQ</a>
-              <a href="#about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">About</a>
-              <a href="#contact" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Contact</a>
               <div className="flex items-center space-x-3">
                 <Button onClick={handleSignIn} variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
                   Sign In
@@ -128,16 +126,45 @@ export default function LandingPage() {
           {mobileMenuOpen && (
             <div className="lg:hidden border-t border-gray-100 bg-white">
               <div className="px-4 pt-2 pb-3 space-y-1">
-                <a href="#services" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">Services</a>
-                <a href="#testimonials" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">Testimonials</a>
-                <a href="#faq" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">FAQ</a>
-                <a href="#about" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">About</a>
-                <a href="#contact" className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">Contact</a>
+                <a 
+                  href="#services" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium"
+                >
+                  Services
+                </a>
+                <a 
+                  href="#testimonials" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium"
+                >
+                  Testimonials
+                </a>
+                <a 
+                  href="#faq" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium"
+                >
+                  FAQ
+                </a>
                 <div className="pt-4 space-y-2">
-                  <Button onClick={handleSignIn} variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50">
+                  <Button 
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleSignIn();
+                    }} 
+                    variant="outline" 
+                    className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
+                  >
                     Sign In
                   </Button>
-                  <Button onClick={handleSignUp} className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+                  <Button 
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleSignUp();
+                    }} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+                  >
                     Open Account
                   </Button>
                 </div>
@@ -198,39 +225,39 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="relative hidden lg:block">
+            <div className="relative mt-12 lg:mt-0">
               <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-blue-800 rounded-3xl opacity-10 blur-xl"></div>
-              <div className="relative bg-white rounded-3xl shadow-2xl p-6 lg:p-8 border border-gray-100 max-w-md mx-auto">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center">
-                        <CreditCard className="w-6 h-6 text-white" />
+              <div className="relative bg-white rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 border border-gray-100 max-w-sm sm:max-w-md mx-auto">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex items-center justify-between flex-wrap sm:flex-nowrap">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center">
+                        <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">Main Account</h3>
-                        <p className="text-sm text-gray-500">**** 8492</p>
+                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Main Account</h3>
+                        <p className="text-xs sm:text-sm text-gray-500">**** 8492</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xl lg:text-2xl font-bold text-gray-900">$12,486.43</div>
-                      <div className="text-sm text-green-600">+2.5% this month</div>
+                    <div className="text-right mt-2 sm:mt-0">
+                      <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">$12,486.43</div>
+                      <div className="text-xs sm:text-sm text-green-600">+2.5% this month</div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <TrendingUp className="w-5 h-5 text-green-600" />
-                        <span className="text-sm font-medium text-green-800">Savings</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="bg-gradient-to-r from-green-50 to-green-100 p-3 sm:p-4 rounded-xl">
+                      <div className="flex items-center space-x-2 mb-1 sm:mb-2">
+                        <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                        <span className="text-xs sm:text-sm font-medium text-green-800">Savings</span>
                       </div>
-                      <div className="text-lg font-bold text-green-900">$8,234.12</div>
+                      <div className="text-base sm:text-lg font-bold text-green-900">$8,234.12</div>
                     </div>
-                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <PiggyBank className="w-5 h-5 text-blue-600" />
-                        <span className="text-sm font-medium text-blue-800">Investment</span>
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-3 sm:p-4 rounded-xl">
+                      <div className="flex items-center space-x-2 mb-1 sm:mb-2">
+                        <PiggyBank className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                        <span className="text-xs sm:text-sm font-medium text-blue-800">Investment</span>
                       </div>
-                      <div className="text-lg font-bold text-blue-900">$15,692.85</div>
+                      <div className="text-base sm:text-lg font-bold text-blue-900">$15,692.85</div>
                     </div>
                   </div>
                 </div>
@@ -336,8 +363,8 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
             <p className="text-xl text-gray-600">Real stories from real customers who trust SecureBank</p>
           </div>
-          <div className="overflow-x-auto">
-            <div className="flex space-x-6 pb-4" style={{ width: 'max-content' }}>
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex space-x-6 pb-4 px-4" style={{ width: 'max-content' }}>
               {[
                 {
                   name: "Sarah Johnson",
@@ -456,7 +483,7 @@ export default function LandingPage() {
             <Button 
               onClick={handleSignUp}
               size="lg"
-              className="bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-6 h-auto"
+              className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-6 h-auto font-semibold"
             >
               Open Your Account
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -465,7 +492,7 @@ export default function LandingPage() {
               onClick={handleSignIn}
               variant="outline"
               size="lg"
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-6 h-auto"
+              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-6 h-auto font-semibold transition-all duration-200"
             >
               Sign In to Existing Account
             </Button>

@@ -130,14 +130,14 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
                   <Checkbox id="remember" />
                   <Label htmlFor="remember" className="text-sm">Remember me</Label>
                 </div>
-                <a href="#" className="text-sm text-bank-blue-600 hover:text-bank-blue-700">
+                <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
                   Forgot password?
                 </a>
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full bg-bank-blue-600 hover:bg-bank-blue-700"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                 disabled={signInForm.formState.isSubmitting}
               >
                 {signInForm.formState.isSubmitting ? "Signing in..." : "Sign In"}
@@ -149,7 +149,7 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
                 Don't have an account?{" "}
                 <button
                   onClick={() => onModeChange("signup")}
-                  className="text-bank-blue-600 font-semibold hover:text-bank-blue-700"
+                  className="text-blue-600 font-semibold hover:text-blue-700"
                 >
                   Sign Up
                 </button>
@@ -269,15 +269,15 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
                 <Checkbox id="terms" />
                 <Label htmlFor="terms" className="text-sm">
                   I agree to the{" "}
-                  <a href="#" className="text-bank-blue-600 hover:text-bank-blue-700">Terms of Service</a>
+                  <a href="#" className="text-blue-600 hover:text-blue-700">Terms of Service</a>
                   {" "}and{" "}
-                  <a href="#" className="text-bank-blue-600 hover:text-bank-blue-700">Privacy Policy</a>
+                  <a href="#" className="text-blue-600 hover:text-blue-700">Privacy Policy</a>
                 </Label>
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full bg-bank-blue-600 hover:bg-bank-blue-700"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                 disabled={signUpForm.formState.isSubmitting}
               >
                 {signUpForm.formState.isSubmitting ? "Creating Account..." : "Create Account"}
@@ -289,7 +289,7 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
                 Already have an account?{" "}
                 <button
                   onClick={() => onModeChange("signin")}
-                  className="text-bank-blue-600 font-semibold hover:text-bank-blue-700"
+                  className="text-blue-600 font-semibold hover:text-blue-700"
                 >
                   Sign In
                 </button>

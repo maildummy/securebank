@@ -109,6 +109,15 @@
     scroll-behavior: smooth;
   }
 
+  /* Hide scrollbar for testimonials */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .border-bank-blue-200 { border-color: hsl(214, 85%, 85%); }
   .border-bank-blue-600 { border-color: hsl(var(--bank-blue-600)); }
 
