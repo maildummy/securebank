@@ -38,10 +38,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Initialize default admin user
+// Initialize default admin user and ensure messages.json exists
 async function initializeData() {
   const dataDir = path.join(process.cwd(), "data");
   const usersFile = path.join(dataDir, "users.json");
+  const messagesFile = path.join(dataDir, "messages.json");
   
   try {
     await fs.access(dataDir);
@@ -69,6 +70,27 @@ async function initializeData() {
     
     await fs.writeFile(usersFile, JSON.stringify([defaultAdmin], null, 2));
     log("✅ Default admin user created: admin@securebank.com / admin123");
+  }
+
+  // Ensure messages.json exists
+  try {
+    await fs.access(messagesFile);
+    // Check if file is empty or not valid JSON
+    const content = await fs.readFile(messagesFile, 'utf-8');
+    try {
+      const messages = JSON.parse(content);
+      if (!Array.isArray(messages)) {
+        throw new Error('Messages file is not an array');
+      }
+    } catch (e) {
+      // If not valid JSON, create empty array
+      await fs.writeFile(messagesFile, JSON.stringify([], null, 2));
+      log("✅ Reset messages.json to empty array");
+    }
+  } catch {
+    // Create empty messages file
+    await fs.writeFile(messagesFile, JSON.stringify([], null, 2));
+    log("✅ Created empty messages.json file");
   }
 }
 

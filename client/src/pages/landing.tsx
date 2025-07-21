@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,32 @@ export default function LandingPage() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      // Check if mobile menu is open and the click is outside the menu
+      if (mobileMenuOpen) {
+        const menu = document.getElementById('mobile-menu');
+        const menuButton = document.getElementById('menu-button');
+        
+        if (menu && !menu.contains(e.target as Node) && 
+            menuButton && !menuButton.contains(e.target as Node)) {
+          setMobileMenuOpen(false);
+        }
+      }
+    };
+
+    // Add event listener when menu is open
+    if (mobileMenuOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+
+    // Clean up
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [mobileMenuOpen]);
+
   // Optional: Redirect if already authenticated (commented out to allow viewing landing page)
   // if (user) {
   //   if (user.isAdmin) {
@@ -55,7 +81,7 @@ export default function LandingPage() {
   const faqData = [
     {
       question: "How secure is my money with SecureBank?",
-      answer: "Your deposits are protected by advanced encryption, multi-factor authentication, and are insured up to $250,000 per account. We use military-grade security protocols to safeguard your financial information."
+      answer: "Your deposits are protected by advanced encryption, multi-factor authentication, and are insured up to $750,000 per account. We use military-grade security protocols to safeguard your financial information."
     },
     {
       question: "What fees does SecureBank charge?",
@@ -63,11 +89,11 @@ export default function LandingPage() {
     },
     {
       question: "How long does account approval take?",
-      answer: "Most account applications are reviewed and approved within 24-48 hours. You'll receive email notifications throughout the process and can track your application status in real-time."
+      answer: "Most account applications are reviewed and approved within 24-48 hours, although some may take up to 7 business days. You will receive notifications at each stage of the process and can track the status of your application in real-time chat through your account dashboard. Be sure to keep an eye on the message section of your dashboard for timely updates."
     },
     {
       question: "Can I access my account internationally?",
-      answer: "Yes! SecureBank provides global access to your accounts through our mobile app and online platform. We support transactions in 150+ countries with competitive exchange rates."
+      answer: "Yes! SecureBank provides global access to your accounts through our web app/online platform. We support transactions in 150+ countries with competitive exchange rates."
     },
     {
       question: "What customer support options are available?",
@@ -124,6 +150,7 @@ export default function LandingPage() {
             </div>
             <div className="lg:hidden">
               <button 
+                id="menu-button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="text-gray-700 hover:text-blue-600 p-2"
               >
@@ -134,10 +161,13 @@ export default function LandingPage() {
             </div>
           </div>
           
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Changed to slide from right */}
           {mobileMenuOpen && (
-            <div className="lg:hidden border-t border-gray-100 bg-white">
-              <div className="px-4 pt-2 pb-3 space-y-1">
+            <div 
+              id="mobile-menu"
+              className="lg:hidden fixed top-20 right-0 bottom-0 w-64 bg-white shadow-xl border-l border-gray-200 z-50 transform transition-transform duration-300 ease-in-out"
+            >
+              <div className="px-4 pt-4 pb-6 space-y-3">
                 <a 
                   href="#services" 
                   onClick={() => setMobileMenuOpen(false)}
@@ -205,63 +235,48 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Quick Access Info */}
-      <div className="bg-blue-600 text-white py-3">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-8 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">🏠 Landing Page:</span>
-              <span>You are here</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">👤 Admin Access:</span>
-              <span>Sign in with: admin@securebank.com | password: admin123</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">🎯 Navigation:</span>
-              <span>Buttons above for dashboards</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Removed the blue background Quick Access Info section */}
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-white to-blue-50 py-20 lg:py-32 overflow-hidden">
+      {/* Hero Section - Improved responsiveness and made account card bigger */}
+      <section className="relative bg-gradient-to-br from-blue-50 via-white to-blue-50 py-16 sm:py-20 lg:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-blue-800/5"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
+            <div className="space-y-4 sm:space-y-6 text-center md:text-left">
               <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                 <Award className="w-4 h-4 mr-2" />
                 #1 Rated Digital Bank 2024
               </div>
-              <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 leading-tight">
                 Banking
-                <span className="block bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent leading-tight">
                   Reimagined
                 </span>
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed max-w-xl">
+              <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-xl mx-auto md:mx-0">
                 Experience the future of banking with our cutting-edge platform. Secure, fast, and designed for your financial success.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <Button 
                   onClick={handleSignUp}
                   size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-lg px-8 py-6 h-auto"
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-lg px-6 sm:px-8 py-4 sm:py-5 h-auto"
                 >
                   Start Your Journey
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button 
+                  onClick={() => {
+                    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
                   variant="outline"
                   size="lg"
-                  className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 text-lg px-8 py-6 h-auto"
+                  className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 text-lg px-6 sm:px-8 py-4 sm:py-5 h-auto"
                 >
-                  Watch Demo
+                  Learn More
                 </Button>
               </div>
-              <div className="flex items-center space-x-8 text-sm text-gray-600">
+              <div className="flex flex-wrap justify-center md:justify-start gap-4 sm:gap-6 text-sm text-gray-600">
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
                   FDIC Insured
@@ -276,40 +291,87 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="relative mt-12 lg:mt-0">
+            <div className="relative mt-6 md:mt-0 mx-auto md:mx-0 max-w-md sm:max-w-lg lg:max-w-2xl">
               <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-blue-800 rounded-3xl opacity-10 blur-xl"></div>
-              <div className="relative bg-white rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 border border-gray-100 max-w-sm sm:max-w-md mx-auto">
+              <div className="relative bg-white rounded-3xl shadow-2xl p-4 sm:p-6 border border-gray-100">
                 <div className="space-y-4 sm:space-y-6">
                   <div className="flex items-center justify-between flex-wrap sm:flex-nowrap">
-                    <div className="flex items-center space-x-2 sm:space-x-3">
+                    <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center">
                         <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Main Account</h3>
-                        <p className="text-xs sm:text-sm text-gray-500">**** 8492</p>
+                        <h3 className="font-semibold text-gray-900 text-base sm:text-lg">Main Account</h3>
+                        <p className="text-sm text-gray-500">**** 8492</p>
                       </div>
                     </div>
                     <div className="text-right mt-2 sm:mt-0">
-                      <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">$12,486.43</div>
-                      <div className="text-xs sm:text-sm text-green-600">+2.5% this month</div>
+                      <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">$12,486.43</div>
+                      <div className="text-sm text-green-600">+2.5% this month</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="bg-gradient-to-r from-green-50 to-green-100 p-3 sm:p-4 rounded-xl">
                       <div className="flex items-center space-x-2 mb-1 sm:mb-2">
                         <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-                        <span className="text-xs sm:text-sm font-medium text-green-800">Savings</span>
+                        <span className="text-sm font-medium text-green-800">Savings</span>
                       </div>
-                      <div className="text-base sm:text-lg font-bold text-green-900">$8,234.12</div>
+                      <div className="text-base sm:text-lg lg:text-xl font-bold text-green-900">$8,234.12</div>
                     </div>
                     <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-3 sm:p-4 rounded-xl">
                       <div className="flex items-center space-x-2 mb-1 sm:mb-2">
                         <PiggyBank className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                        <span className="text-xs sm:text-sm font-medium text-blue-800">Investment</span>
+                        <span className="text-sm font-medium text-blue-800">Investment</span>
                       </div>
-                      <div className="text-base sm:text-lg font-bold text-blue-900">$15,692.85</div>
+                      <div className="text-base sm:text-lg lg:text-xl font-bold text-blue-900">$15,692.85</div>
                     </div>
+                  </div>
+                  
+                  {/* Recent Transactions */}
+                  <div className="border-t border-gray-100 pt-3">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Recent Transactions</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                            <Smartphone className="w-4 h-4 text-purple-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">Apple Store</p>
+                            <p className="text-xs text-gray-500">Jul 18, 2024</p>
+                          </div>
+                        </div>
+                        <span className="font-medium text-gray-800">-$129.99</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                            <DollarSign className="w-4 h-4 text-green-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">Salary Deposit</p>
+                            <p className="text-xs text-gray-500">Jul 15, 2024</p>
+                          </div>
+                        </div>
+                        <span className="font-medium text-green-600">+$3,450.00</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Quick Actions */}
+                  <div className="flex justify-between items-center">
+                    <button className="flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors">
+                      <Zap className="w-3.5 h-3.5 mr-1" />
+                      Transfer
+                    </button>
+                    <button className="flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors">
+                      <CreditCard className="w-3.5 h-3.5 mr-1" />
+                      Pay
+                    </button>
+                    <button className="flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors">
+                      <TrendingUp className="w-3.5 h-3.5 mr-1" />
+                      Invest
+                    </button>
                   </div>
                 </div>
               </div>
@@ -341,7 +403,7 @@ export default function LandingPage() {
               {
                 icon: Smartphone,
                 title: "Mobile Banking",
-                description: "Full-featured mobile app with biometric login, instant notifications, and seamless transaction management.",
+                description: "Full-featured web app with biometric login, instant notifications, and seamless transaction management.",
                 color: "green"
               },
               {
@@ -426,7 +488,7 @@ export default function LandingPage() {
                 {
                   name: "Michael Chen",
                   role: "Software Engineer",
-                  content: "The mobile app is incredible. I can handle all my banking needs on the go with the security and features I need.",
+                  content: "The web app is incredible. I can handle all my banking needs on the go with the security and features I need.",
                   rating: 5
                 },
                 {
@@ -523,7 +585,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section - Fixed button coloring */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">Ready to Get Started?</h2>
@@ -534,7 +596,7 @@ export default function LandingPage() {
             <Button 
               onClick={handleSignUp}
               size="lg"
-              className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-6 h-auto font-semibold"
+              className="bg-white text-blue-600 hover:bg-blue-50 text-lg px-8 py-6 h-auto font-semibold transition-colors"
             >
               Open Your Account
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -543,7 +605,7 @@ export default function LandingPage() {
               onClick={handleSignIn}
               variant="outline"
               size="lg"
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-6 h-auto font-semibold transition-all duration-200"
+              className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-blue-600 text-lg px-8 py-6 h-auto font-semibold transition-all duration-200"
             >
               Sign In to Existing Account
             </Button>

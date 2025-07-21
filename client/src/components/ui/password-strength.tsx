@@ -2,7 +2,7 @@ interface PasswordStrengthProps {
   password: string;
 }
 
-export default function PasswordStrength({ password }: PasswordStrengthProps) {
+export function PasswordStrength({ password }: PasswordStrengthProps) {
   const getStrength = (pass: string) => {
     if (!pass) return { score: 0, label: "Enter password" };
     
@@ -38,3 +38,6 @@ export default function PasswordStrength({ password }: PasswordStrengthProps) {
     </div>
   );
 }
+
+// Default export for backward compatibility
+export default PasswordStrength;

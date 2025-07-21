@@ -57,7 +57,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-[var(--border)];
   }
 
   body {
@@ -116,6 +116,32 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Custom scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(214, 100%, 97%);
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(221, 83%, 75%);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(221, 83%, 65%);
+  }
+  
+  /* Firefox scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(221, 83%, 75%) hsl(214, 100%, 97%);
   }
 
   .border-bank-blue-200 { border-color: hsl(214, 85%, 85%); }

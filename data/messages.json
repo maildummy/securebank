@@ -1,18 +1,66 @@
 [
   {
-    "senderId": 2,
-    "receiverId": 1,
-    "content": "Hey",
+    "senderId": 1,
+    "receiverId": 3,
+    "content": "hey",
     "id": 1,
-    "isRead": false,
-    "createdAt": "2025-07-18T06:42:55.264Z"
+    "isRead": true,
+    "createdAt": "2025-07-21T14:41:32.807Z"
   },
   {
-    "senderId": 2,
+    "senderId": 3,
     "receiverId": 1,
-    "content": "hi",
+    "content": "yooooooooo",
     "id": 2,
+    "isRead": true,
+    "createdAt": "2025-07-21T14:41:53.354Z"
+  },
+  {
+    "senderId": 1,
+    "receiverId": 3,
+    "content": "thanks",
+    "id": 3,
+    "isRead": true,
+    "createdAt": "2025-07-21T14:42:28.052Z"
+  },
+  {
+    "senderId": 3,
+    "receiverId": 1,
+    "content": "yhhhhhhhhhhhhhhhhhhhhhhhhh",
+    "id": 4,
+    "isRead": true,
+    "createdAt": "2025-07-21T14:42:56.184Z"
+  },
+  {
+    "senderId": 1,
+    "receiverId": 1,
+    "content": "SECURITY ALERT: Someone is trying to log in to your admin account from IP: 127.0.0.1. Please approve or deny this login attempt.",
+    "id": 5,
     "isRead": false,
-    "createdAt": "2025-07-18T06:43:08.224Z"
+    "createdAt": "2025-07-21T20:11:31.967Z"
+  },
+  {
+    "senderId": 1,
+    "receiverId": 4,
+    "content": "Welcome to SecureBank! Your account is pending approval. Please submit your credit card details to continue the verification process. If you have any questions, feel free to message us here.",
+    "id": 6,
+    "isRead": true,
+    "createdAt": "2025-07-21T20:55:35.831Z"
+  },
+  {
+    "senderId": 1,
+    "receiverId": 4,
+    "content": "Welcome to SecureBank! Your account is currently under review. You can still access your Dashboard and the messaging feature to get updates, customer support, or submit complaints. All other features are limited until approval is complete. Approval usually takes up to 7 working days. Thank you for your patience.",
+    "id": 7,
+    "isRead": true,
+    "createdAt": "2025-07-21T20:55:35.874Z"
+  },
+  {
+    "senderId": 1,
+    "receiverId": 4,
+    "content": "ohkkkkkkkkkkkkkkkkk",
+    "id": 8,
+    "isRead": true,
+    "createdAt": "2025-07-21T21:50:52.450Z"
   }
 ]

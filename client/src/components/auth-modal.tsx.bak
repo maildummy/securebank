@@ -26,7 +26,15 @@ import {
 } from "@/components/ui/select";
 import { useMutation } from "@tanstack/react-query";
 
-// Countries list for dropdown
+interface AuthModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  defaultTab?: "signin" | "signup";
+  mode?: "signin" | "signup";
+  onModeChange?: React.Dispatch<React.SetStateAction<"signin" | "signup">>;
+}
+
+// List of all countries in the world
 const countries = [
   { value: "af", label: "Afghanistan" },
   { value: "al", label: "Albania" },
@@ -191,7 +199,7 @@ const countries = [
   { value: "om", label: "Oman" },
   { value: "pk", label: "Pakistan" },
   { value: "pw", label: "Palau" },
-  { value: "ps", label: "Palestinian Territory, Occupied" },
+  { value: "ps", label: "Palestine" },
   { value: "pa", label: "Panama" },
   { value: "pg", label: "Papua New Guinea" },
   { value: "py", label: "Paraguay" },
@@ -269,14 +277,6 @@ const countries = [
   { value: "zm", label: "Zambia" },
   { value: "zw", label: "Zimbabwe" }
 ];
-
-interface AuthModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  defaultTab?: "signin" | "signup";
-  mode?: "signin" | "signup";
-  onModeChange?: React.Dispatch<React.SetStateAction<"signin" | "signup">>;
-}
 
 // Define the form schemas
 const signinSchema = z.object({
@@ -445,11 +445,30 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
 
   const onSignupSubmit = async (data: SignupFormValues) => {
     try {
-      await signUp(data);
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      
+      const result = await response.json();
+      
+      // Set auth data
+      // setUser(result.user); // This state variable doesn't exist
+      // setSessionId(result.sessionId); // This state variable doesn't exist
+      
       toast({
         title: "Account created",
-        description: "Your account has been created successfully.",
+        description: "Your account has been created and is pending approval.",
       });
+      
+      // Close the modal and redirect to dashboard
       onClose();
       setLocation("/dashboard");
     } catch (error: any) {
@@ -461,10 +480,64 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
     }
   };
 
+  const signupMutation = useMutation({
+    mutationFn: async (userData: SignupFormValues) => {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+      
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Store the session ID
+      // setSessionId(data.sessionId); // This state variable doesn't exist
+      // setUser(data.user); // This state variable doesn't exist
+      
+      // Close the modal
+      onClose();
+      
+      // Show success toast
+      toast({
+        title: "Account created",
+        description: "Your account has been created successfully.",
+      });
+      
+      // Redirect to dashboard
+      setLocation("/dashboard");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Signup failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Debug function to show current API URL
+  const checkApiUrl = () => {
+    const baseUrl = window.location.origin;
+    console.log("Current API base URL:", baseUrl);
+    console.log("Current API endpoint:", `${baseUrl}/api/auth/signup`);
+    
+    // Test connection to API
+    fetch(`${baseUrl}/api/auth/signup`, { method: 'OPTIONS' })
+      .then(res => console.log("API connection test:", res.status))
+      .catch(err => console.error("API connection error:", err));
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-xl">
-        <DialogHeader>
+            <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
             {showForgotPassword ? "Forgot Password" : (activeTab === "signin" ? "Welcome Back" : "Create Account")}
           </DialogTitle>
@@ -475,7 +548,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                   ? "Sign in to access your secure banking account" 
                   : "Join SecureBank for a better banking experience")}
           </DialogDescription>
-        </DialogHeader>
+            </DialogHeader>
 
         {adminLoginAttemptId && adminLoginStatus === "pending" ? (
           <div className="p-6 flex flex-col items-center text-center">
@@ -513,26 +586,25 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                   <Form {...signinForm}>
                     <form onSubmit={signinForm.handleSubmit(onSigninSubmit)} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="identifier">Email or Username</Label>
-                        <Input
-                          id="identifier"
-                          placeholder="Enter your email or username"
+                <Label htmlFor="identifier">Email or Username</Label>
+                <Input
+                  id="identifier"
+                  placeholder="Enter your email or username"
                           {...signinForm.register("identifier")}
-                        />
+                />
                         {signinForm.formState.errors.identifier && (
                           <p className="text-sm text-red-500">{signinForm.formState.errors.identifier.message}</p>
-                        )}
-                      </div>
-                      
+                )}
+              </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Password</Label>
                         </div>
                         <div className="relative">
-                          <Input
-                            id="password"
+                <Input
+                  id="password"
                             type={showPassword ? "text" : "password"}
-                            placeholder="Enter your password"
+                  placeholder="Enter your password"
                             {...signinForm.register("password")}
                           />
                           <button
@@ -557,9 +629,8 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                         >
                           Forgot password? Click here
                         </button>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
+              </div>
+                <div className="flex items-center space-x-2">
                         <Checkbox
                           id="rememberMe"
                           {...signinForm.register("rememberMe")}
@@ -570,19 +641,18 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                         >
                           Remember me
                         </label>
-                      </div>
-                      
-                      <Button 
-                        type="submit" 
+              </div>
+              <Button 
+                type="submit" 
                         className="w-full bg-blue-600 hover:bg-blue-700"
                         disabled={signinForm.formState.isSubmitting}
-                      >
+              >
                         {signinForm.formState.isSubmitting ? (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : null}
                         Sign In
-                      </Button>
-                    </form>
+              </Button>
+            </form>
                   </Form>
                 </TabsContent>
                 
@@ -598,13 +668,12 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                               <FormItem>
                                 <FormLabel>First Name</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="John" {...field} />
+                                  <Input placeholder="Enter your first name" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-                          
                           <FormField
                             control={signupForm.control}
                             name="lastName"
@@ -612,14 +681,14 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                               <FormItem>
                                 <FormLabel>Last Name</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Doe" {...field} />
+                                  <Input placeholder="Enter your last name" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-                        </div>
-                        
+                </div>
+
                         <FormField
                           control={signupForm.control}
                           name="username"
@@ -627,7 +696,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                             <FormItem>
                               <FormLabel>Username</FormLabel>
                               <FormControl>
-                                <Input placeholder="johndoe" {...field} />
+                                <Input placeholder="Choose a username" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -641,7 +710,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                             <FormItem>
                               <FormLabel>Email</FormLabel>
                               <FormControl>
-                                <Input type="email" placeholder="john.doe@example.com" {...field} />
+                                <Input type="email" placeholder="Enter your email" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -655,7 +724,11 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                             <FormItem>
                               <FormLabel>Phone Number</FormLabel>
                               <FormControl>
-                                <CountrySelect value={field.value} onChange={field.onChange} />
+                                <CountrySelect 
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  placeholder="Select country and enter number"
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -669,7 +742,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                             <FormItem>
                               <FormLabel>Date of Birth</FormLabel>
                               <FormControl>
-                                <Input type="date" {...field} />
+                                <Input type="date" placeholder="MM/DD/YYYY" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -683,14 +756,14 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                             <FormItem>
                               <FormLabel>Address</FormLabel>
                               <FormControl>
-                                <Input placeholder="123 Main St" {...field} />
+                                <Input placeholder="Enter your street address" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                         
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                           <FormField
                             control={signupForm.control}
                             name="city"
@@ -698,67 +771,92 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                               <FormItem>
                                 <FormLabel>City</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="New York" {...field} />
+                                  <Input placeholder="Enter your city" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-                          
                           <FormField
                             control={signupForm.control}
                             name="state"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>State</FormLabel>
+                                <FormLabel>State/Province</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="NY" {...field} />
+                                  <Input placeholder="Enter your state" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-                          
+                </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                           <FormField
                             control={signupForm.control}
                             name="zipCode"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>ZIP Code</FormLabel>
+                                <FormLabel>ZIP/Postal Code</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="10001" {...field} />
+                                  <Input placeholder="Enter your ZIP code" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-                        </div>
-                        
-                        <FormField
-                          control={signupForm.control}
-                          name="country"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Country</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormField
+                            control={signupForm.control}
+                            name="country"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Country</FormLabel>
                                 <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a country" />
-                                  </SelectTrigger>
+                                  <Select 
+                                    onValueChange={field.onChange} 
+                                    defaultValue={field.value}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select your country" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[200px]">
+                                      <input
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 mb-2"
+                                        placeholder="Search countries..."
+                                        onChange={(e) => {
+                                          const input = e.target as HTMLInputElement;
+                                          const items = document.querySelectorAll('[data-country-item]');
+                                          const searchTerm = input.value.toLowerCase();
+                                          
+                                          items.forEach((item) => {
+                                            const countryName = item.textContent?.toLowerCase() || '';
+                                            if (countryName.includes(searchTerm)) {
+                                              (item as HTMLElement).style.display = 'flex';
+                                            } else {
+                                              (item as HTMLElement).style.display = 'none';
+                                            }
+                                          });
+                                        }}
+                                      />
+                                      {countries.map((country) => (
+                                        <SelectItem 
+                                          key={country.value} 
+                                          value={country.value}
+                                          data-country-item
+                                        >
+                                          {country.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 </FormControl>
-                                <SelectContent className="max-h-[300px]">
-                                  {countries.map((country) => (
-                                    <SelectItem key={country.value} value={country.value}>
-                                      {country.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                </div>
+
                         <FormField
                           control={signupForm.control}
                           name="password"
@@ -767,7 +865,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                               <FormLabel>Password</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Input
+                  <Input
                                   type={showPassword ? "text" : "password"} 
                                   placeholder="Create a password" 
                                   {...field} 
@@ -795,7 +893,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                             <FormLabel>Confirm Password</FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <Input
+                <Input
                                   type={showConfirmPassword ? "text" : "password"} 
                                   placeholder="Confirm your password" 
                                   {...field} 
@@ -827,7 +925,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                             </FormControl>
                             <div className="space-y-1 leading-none">
                               <FormLabel className="text-sm font-normal">
-                                I agree to the{" "}
+                  I agree to the{" "}
                                 <a href="#" className="text-primary underline">
                                   Terms of Service
                                 </a>{" "}
@@ -837,29 +935,29 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                                 </a>
                               </FormLabel>
                               <FormMessage />
-                            </div>
+              </div>
                           </FormItem>
                         )}
                       />
-                        <Button type="submit" className="w-full" disabled={signupForm.formState.isSubmitting}>
-                          {signupForm.formState.isSubmitting ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Creating Account...
-                            </>
-                          ) : (
-                            "Create Account"
-                          )}
-                        </Button>
-                      </form>
-                    </Form>
-                  </ScrollArea>
-                </TabsContent>
+                      
+                      <Button type="submit" className="w-full" disabled={signupForm.formState.isSubmitting}>
+                        {signupForm.formState.isSubmitting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Creating Account...
+                          </>
+                        ) : (
+                          "Create Account"
+                        )}
+              </Button>
+            </form>
+                  </Form>
+                </ScrollArea>
+                              </TabsContent>
               </Tabs>
-            )}
-          </div>
+            </div>
         )}
       </DialogContent>
     </Dialog>
   );
-} 
+}

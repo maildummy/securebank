@@ -6,10 +6,11 @@ import type { User, SignInData, SignUpData } from "@shared/schema";
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  signIn: (data: SignInData) => Promise<void>;
+  signIn: (data: SignInData) => Promise<any>;
   signUp: (data: SignUpData) => Promise<void>;
   signOut: () => Promise<void>;
   sessionId: string | null;
+  checkAdminLoginStatus: (attemptId: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,10 +21,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
   const queryClient = useQueryClient();
 
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/user/me"],
     enabled: !!sessionId,
     retry: false,
+    meta: { sessionId },
   });
 
   useEffect(() => {
@@ -44,32 +46,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInMutation = useMutation({
     mutationFn: async (data: SignInData) => {
+      try {
       const response = await apiRequest("POST", "/api/auth/signin", data);
-      return response.json();
+        return await response.json();
+      } catch (error) {
+        // apiRequest will already throw an error with the proper message
+        throw error;
+      }
     },
     onSuccess: (data) => {
+      // Standard login flow - no admin approval check needed
       setSessionId(data.sessionId);
       localStorage.setItem("sessionId", data.sessionId);
-      queryClient.setQueryData(["/api/user/me"], data.user);
+      queryClient.setQueryData<User>(["/api/user/me"], data.user);
+      
+      return data;
     },
   });
 
+  const checkAdminLoginStatus = async (attemptId: string) => {
+    try {
+      const response = await fetch(`/api/auth/admin-login/${attemptId}`, {
+        headers: {
+          "Authorization": sessionId ? `Bearer ${sessionId}` : '',
+        }
+      });
+      const data = await response.json();
+      
+      if (data.status === "approved") {
+        setSessionId(data.sessionId);
+        localStorage.setItem("sessionId", data.sessionId);
+        queryClient.setQueryData<User>(["/api/user/me"], data.user);
+      }
+      
+      return data;
+    } catch (error) {
+      console.error("Failed to check login status", error);
+      throw error;
+    }
+  };
+
   const signUpMutation = useMutation({
     mutationFn: async (data: SignUpData) => {
+      try {
       const response = await apiRequest("POST", "/api/auth/signup", data);
-      return response.json();
+        return await response.json();
+      } catch (error) {
+        // apiRequest will already throw an error with the proper message
+        throw error;
+      }
     },
     onSuccess: (data) => {
       setSessionId(data.sessionId);
       localStorage.setItem("sessionId", data.sessionId);
-      queryClient.setQueryData(["/api/user/me"], data.user);
+      queryClient.setQueryData<User>(["/api/user/me"], data.user);
     },
   });
 
   const signOutMutation = useMutation({
     mutationFn: async () => {
       if (sessionId) {
-        await apiRequest("POST", "/api/auth/logout", undefined);
+        const headers = { "Authorization": `Bearer ${sessionId}` };
+        await apiRequest("POST", "/api/auth/logout", undefined, headers);
       }
     },
     onSettled: () => {
@@ -86,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp: signUpMutation.mutateAsync,
     signOut: signOutMutation.mutateAsync,
     sessionId,
+    checkAdminLoginStatus,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

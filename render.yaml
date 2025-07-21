@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: onlinebank-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm run start:server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+  
+  - type: web
+    name: onlinebank-frontend
+    env: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://onlinebank-backend.onrender.com/api/* 

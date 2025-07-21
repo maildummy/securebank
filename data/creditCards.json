@@ -1,0 +1,38 @@
+[
+  {
+    "userId": 3,
+    "cardNumber": "7489384783937460202",
+    "cardholderName": "test user",
+    "expiryMonth": "03",
+    "expiryYear": "2025",
+    "cvv": "3432",
+    "creditLimit": "43234",
+    "billingAddress": "Abraka",
+    "billingCity": "Asaba",
+    "billingState": "NY",
+    "billingZip": "3443334",
+    "billingCountry": "nl",
+    "isVerified": false,
+    "id": 1,
+    "createdAt": "2025-07-20T13:05:29.556Z",
+    "updatedAt": "2025-07-20T13:05:29.556Z"
+  },
+  {
+    "userId": 4,
+    "cardNumber": "456789876545678456",
+    "cardholderName": "Demo Dm",
+    "expiryMonth": "01",
+    "expiryYear": "2026",
+    "cvv": "5676",
+    "creditLimit": "250000",
+    "billingAddress": "Jakpa Road",
+    "billingCity": "Warri",
+    "billingState": "Delta",
+    "billingZip": "875460",
+    "billingCountry": "ng",
+    "isVerified": false,
+    "id": 2,
+    "createdAt": "2025-07-21T12:39:52.713Z",
+    "updatedAt": "2025-07-21T12:39:52.713Z"
+  }
+]
