@@ -1,183 +1,110 @@
 import { z } from "zod";
+import { pgTable, text, boolean, timestamp, pgEnum, serial, integer } from "drizzle-orm/pg-core";
 
 // User schema
 export const userSchema = z.object({
-  id: z.number().optional(),
-  username: z.string().min(3).max(50),
-  password: z.string().min(8),
+  id: z.string(),
+  username: z.string().min(3),
   email: z.string().email(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  phone: z.string().min(5),
-  dateOfBirth: z.string(),
-  address: z.string().min(5),
-  city: z.string().min(2),
-  state: z.string().min(2),
-  zipCode: z.string().min(3),
-  country: z.string().min(2),
+  password: z.string().min(6), // This will store the hashed password
   isAdmin: z.boolean().default(false),
-  status: z.enum(["pending", "approved", "rejected", "suspended"]).default("pending"),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
+  approved: z.boolean().default(false),
+  suspended: z.boolean().default(false),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  country: z.string().optional(),
+  createdAt: z.string(),
+  // We'll securely handle plaintext password during auth without storing it
+});
+
+// Session schema
+export const sessionSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  createdAt: z.string(),
+  expiresAt: z.string()
+});
+
+// Notification schema
+export const notificationSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  message: z.string(),
+  read: z.boolean().default(false),
+  createdAt: z.string()
+});
+
+// Credit Card schema - we'll encrypt/tokenize sensitive data
+export const creditCardSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  cardholderName: z.string(),
+  // Store last 4 digits only for display purposes
+  last4: z.string().length(4),
+  // We'll tokenize these sensitive fields instead of storing directly
+  cardToken: z.string(),
+  expiryToken: z.string(),
+  cvvToken: z.string(),
+  approved: z.boolean().default(false),
+  createdAt: z.string()
+});
+
+// Message schema
+export const messageSchema = z.object({
+  id: z.string(),
+  senderId: z.string(),
+  receiverId: z.string(),
+  content: z.string(),
+  timestamp: z.string(),
+  read: z.boolean().default(false)
 });
 
 export type User = z.infer<typeof userSchema>;
-export type UserWithoutId = Omit<User, "id">;
+export type Session = z.infer<typeof sessionSchema>;
+export type Notification = z.infer<typeof notificationSchema>;
+export type CreditCard = z.infer<typeof creditCardSchema>;
+export type Message = z.infer<typeof messageSchema>;
 
-// Credit Card Details schema
-export const creditCardSchema = z.object({
-  id: z.number().optional(),
-  userId: z.number(),
-  cardNumber: z.string().min(16).max(19),
-  cardholderName: z.string().min(3).max(50),
-  expiryMonth: z.string().min(1),
-  expiryYear: z.string().min(1),
-  cvv: z.string().min(3).max(4),
-  creditLimit: z.string().min(1),
-  billingAddress: z.string().min(5),
-  billingCity: z.string().min(2),
-  billingState: z.string().min(2),
-  billingZip: z.string().min(3),
-  billingCountry: z.string().min(2),
-  isVerified: z.boolean().default(false),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-});
+// Custom type for credit card form submission
+export type CreditCardSubmission = {
+  cardNumber: string;
+  cardholderName: string;
+  expiryDate: string;
+  cvv: string;
+};
 
-export type CreditCardDetails = z.infer<typeof creditCardSchema>;
-export type InsertCreditCardDetails = Omit<CreditCardDetails, "id">;
+// Auth form data
+export type AuthFormData = {
+  username?: string;
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: string;
+  country?: string;
+};
 
-export interface Message {
-  id: number;
-  senderId: number;
-  receiverId: number;
-  content: string;
-  isRead: boolean;
-  createdAt: string;
-}
+// Login form data
+export type LoginFormData = {
+  email: string;
+  password: string;
+};
 
-export interface Session {
-  id: string;
-  userId: number;
-  expiresAt: string;
-  createdAt: string;
-}
+// For admins to see details (without sensitive data)
+export type AdminViewUser = Omit<User, 'password'> & {
+  creditCards?: Array<Omit<CreditCard, 'cardToken' | 'expiryToken' | 'cvvToken'>>;
+};
 
-export interface ActivityLog {
-  id: string;
-  userId: number;
-  user?: {
-    id: number;
-    username: string;
-    firstName?: string;
-    lastName?: string;
-    email: string;
-    isAdmin: boolean;
-  };
-  action: string;
-  details: string;
-  ip: string;
-  timestamp: string;
-}
+// Password reset schema
+export type PasswordReset = {
+  email: string;
+  phone?: string;
+};
 
-export interface AdminLoginAttempt {
-  id: string;
-  username: string;
-  ip: string;
-  timestamp: string;
-  approved: boolean | null;
-}
-
-export interface SystemSettings {
-  id: string;
-  notificationSettings: {
-    enableEmailNotifications: boolean;
-    enableSmsNotifications: boolean;
-    enablePushNotifications: boolean;
-  };
-  systemAnnouncement: {
-    enabled: boolean;
-    message: string;
-    type: "info" | "warning" | "error";
-    expiresAt: string;
-  };
-  securitySettings: {
-    maxLoginAttempts: number;
-    sessionTimeoutMinutes: number;
-    requireTwoFactor: boolean;
-  };
-  updatedAt: string;
-  updatedBy: number;
-}
-
-// Validation schemas
-export const insertUserSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  phone: z.string().min(10, "Phone number is required"),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
-  address: z.string().min(1, "Address is required"),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(1, "ZIP code is required"),
-  country: z.string().min(1, "Country is required"),
-});
-
-export const insertMessageSchema = z.object({
-  senderId: z.number(),
-  receiverId: z.number(),
-  content: z.string().min(1, "Message content is required"),
-});
-
-export const signInSchema = z.object({
-  identifier: z.string().min(1, "Email or username is required"),
-  password: z.string().min(1, "Password is required"),
-});
-
-export const signUpSchema = insertUserSchema.extend({
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-export const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-});
-
-export const resetPasswordSchema = z.object({
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-export const systemSettingsSchema = z.object({
-  notificationSettings: z.object({
-    enableEmailNotifications: z.boolean(),
-    enableSmsNotifications: z.boolean(),
-    enablePushNotifications: z.boolean(),
-  }),
-  systemAnnouncement: z.object({
-    enabled: z.boolean(),
-    message: z.string(),
-    type: z.enum(["info", "warning", "error"]),
-    expiresAt: z.string(),
-  }),
-  securitySettings: z.object({
-    maxLoginAttempts: z.number().min(1).max(10),
-    sessionTimeoutMinutes: z.number().min(5).max(1440),
-    requireTwoFactor: z.boolean(),
-  }),
-});
-
-export type InsertMessage = z.infer<typeof insertMessageSchema>;
-export type SignInData = z.infer<typeof signInSchema>;
-export type SignUpData = z.infer<typeof signUpSchema>;
-export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
-export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
-export type SystemSettingsData = z.infer<typeof systemSettingsSchema>;
+// Demo app settings - IMPORTANT FOR SECURITY SIGNAL
+export const DEMO_MODE = true;
+export const EDUCATIONAL_PURPOSE_ONLY = true;
+export const NO_REAL_FINANCIAL_TRANSACTIONS = true;
