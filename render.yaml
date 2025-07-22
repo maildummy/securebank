@@ -10,4 +10,8 @@ services:
     startCommand: npm run start:server
     envVars:
       - key: NODE_ENV
-        value: production 
+        value: production
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff 

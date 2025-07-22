@@ -1,10 +1,29 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
+import { json } from "body-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import helmet from "helmet";
 import fs from "fs/promises";
 import path from "path";
 
 const app = express();
+const port = process.env.PORT || 3001;
+
+// Apply helmet middleware for security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabling CSP to avoid errors
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// Enable CORS
+app.use(cors({
+  origin: true, // Allow all origins
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

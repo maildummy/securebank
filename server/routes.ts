@@ -47,7 +47,7 @@ interface Notification {
 
 const notifications: Map<number, Notification[]> = new Map();
 
-// Authentication middleware
+  // Authentication middleware
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const sessionId = req.headers.authorization?.split(' ')[1];
@@ -55,7 +55,7 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
     if (!sessionId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    
+
     const session = await storage.getSession(sessionId);
     
     if (!session) {
@@ -66,13 +66,13 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
       await storage.deleteSession(sessionId);
       return res.status(401).json({ message: "Session expired" });
     }
-    
+
     const user = await storage.getUser(session.userId);
     
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
-    
+
     // Update session activity
     activeSessions.set(sessionId, {
       userId: user.id,
@@ -88,15 +88,15 @@ async function requireAuth(req: Request, res: Response, next: NextFunction) {
   } catch (error) {
     return res.status(401).json({ message: "Authentication failed" });
   }
-}
+  }
 
-// Admin middleware
+  // Admin middleware
 function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (!req.user?.isAdmin) {
-    return res.status(403).json({ message: "Admin access required" });
-  }
+      return res.status(403).json({ message: "Admin access required" });
+    }
   
-  next();
+    next();
 }
 
 // Function to log user activity

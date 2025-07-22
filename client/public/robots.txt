@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://securebank-a4ob.onrender.com/sitemap.xml 

@@ -464,7 +464,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-xl">
-        <DialogHeader>
+            <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
             {showForgotPassword ? "Forgot Password" : (activeTab === "signin" ? "Welcome Back" : "Create Account")}
           </DialogTitle>
@@ -475,7 +475,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                   ? "Sign in to access your secure banking account" 
                   : "Join SecureBank for a better banking experience")}
           </DialogDescription>
-        </DialogHeader>
+            </DialogHeader>
 
         {adminLoginAttemptId && adminLoginStatus === "pending" ? (
           <div className="p-6 flex flex-col items-center text-center">
@@ -513,26 +513,26 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                   <Form {...signinForm}>
                     <form onSubmit={signinForm.handleSubmit(onSigninSubmit)} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="identifier">Email or Username</Label>
-                        <Input
-                          id="identifier"
-                          placeholder="Enter your email or username"
+                <Label htmlFor="identifier">Email or Username</Label>
+                <Input
+                  id="identifier"
+                  placeholder="Enter your email or username"
                           {...signinForm.register("identifier")}
-                        />
+                />
                         {signinForm.formState.errors.identifier && (
                           <p className="text-sm text-red-500">{signinForm.formState.errors.identifier.message}</p>
-                        )}
-                      </div>
-                      
+                )}
+              </div>
+
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Password</Label>
                         </div>
                         <div className="relative">
-                          <Input
-                            id="password"
+                <Input
+                  id="password"
                             type={showPassword ? "text" : "password"}
-                            placeholder="Enter your password"
+                  placeholder="Enter your password"
                             {...signinForm.register("password")}
                           />
                           <button
@@ -557,9 +557,9 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                         >
                           Forgot password? Click here
                         </button>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
+              </div>
+
+                <div className="flex items-center space-x-2">
                         <Checkbox
                           id="rememberMe"
                           {...signinForm.register("rememberMe")}
@@ -570,19 +570,19 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                         >
                           Remember me
                         </label>
-                      </div>
-                      
-                      <Button 
-                        type="submit" 
+              </div>
+
+              <Button 
+                type="submit" 
                         className="w-full bg-blue-600 hover:bg-blue-700"
                         disabled={signinForm.formState.isSubmitting}
-                      >
+              >
                         {signinForm.formState.isSubmitting ? (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : null}
                         Sign In
-                      </Button>
-                    </form>
+              </Button>
+            </form>
                   </Form>
                 </TabsContent>
                 
@@ -618,8 +618,8 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                               </FormItem>
                             )}
                           />
-                        </div>
-                        
+              </div>
+
                         <FormField
                           control={signupForm.control}
                           name="username"
@@ -732,8 +732,8 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                               </FormItem>
                             )}
                           />
-                        </div>
-                        
+                </div>
+
                         <FormField
                           control={signupForm.control}
                           name="country"
@@ -767,7 +767,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                               <FormLabel>Password</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Input
+                  <Input
                                   type={showPassword ? "text" : "password"} 
                                   placeholder="Create a password" 
                                   {...field} 
@@ -795,7 +795,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                             <FormLabel>Confirm Password</FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <Input
+                <Input
                                   type={showConfirmPassword ? "text" : "password"} 
                                   placeholder="Confirm your password" 
                                   {...field} 
@@ -827,7 +827,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                             </FormControl>
                             <div className="space-y-1 leading-none">
                               <FormLabel className="text-sm font-normal">
-                                I agree to the{" "}
+                  I agree to the{" "}
                                 <a href="#" className="text-primary underline">
                                   Terms of Service
                                 </a>{" "}
@@ -837,7 +837,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                                 </a>
                               </FormLabel>
                               <FormMessage />
-                            </div>
+              </div>
                           </FormItem>
                         )}
                       />
@@ -850,8 +850,8 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
                           ) : (
                             "Create Account"
                           )}
-                        </Button>
-                      </form>
+              </Button>
+            </form>
                     </Form>
                   </ScrollArea>
                 </TabsContent>
@@ -862,4 +862,4 @@ export default function AuthModal({ isOpen, onClose, defaultTab = "signin", mode
       </DialogContent>
     </Dialog>
   );
-} 
+}
