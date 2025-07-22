@@ -1,21 +1,20 @@
 services:
   - type: web
-    name: bank-demo
+    name: s-bank
     env: node
     buildCommand: |
       npm install
       cd client && npm install && npm run build
-      mkdir -p ../dist/client
-      cp -r dist/* ../dist/client/
+      cd ..
+      mkdir -p dist/client
+      cp -r client/dist/* dist/client/
     startCommand: npm run start:server
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
-      - key: ALLOW_HTTP
-        value: "true"
-      - key: BYPASS_SECURITY_CHECKS
+      - key: SECURE_SITE
         value: "true"
       - key: EDUCATIONAL_DEMO
         value: "true" 
