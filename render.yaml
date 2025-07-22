@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: online-bank
+    name: bank-demo
     env: node
     buildCommand: |
       npm install
