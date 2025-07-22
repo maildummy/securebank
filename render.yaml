@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: onlinebank-backend
+    name: online-bank-backend
     env: node
     buildCommand: npm install
     startCommand: npm run start:server
@@ -11,11 +11,11 @@ services:
         value: 5000
   
   - type: web
-    name: onlinebank-frontend
+    name: online-bank
     env: static
     buildCommand: cd client && npm install && npm run build
     staticPublishPath: ./client/dist
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://onlinebank-backend.onrender.com/api/* 
+        destination: https://online-bank-backend.onrender.com/api/* 
