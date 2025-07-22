@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=development NODE_OPTIONS=--experimental-specifier-resolution=node tsx server/index.ts",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && mkdir -p dist/client && cp -r client/dist dist/client/",
     "start": "NODE_ENV=production node dist/index.js",
     "start:server": "cross-env NODE_ENV=production NODE_OPTIONS=--experimental-specifier-resolution=node tsx server/index.ts",
     "check": "tsc",

@@ -70,12 +70,19 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "..", "client", "dist");
-
+  // Check multiple possible locations for the client dist directory
+  let distPath = path.resolve(__dirname, "..", "client", "dist");
+  
+  // If not found in the first location, try the second location
   if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+    distPath = path.resolve(__dirname, "client", "dist");
+    
+    // If still not found, throw an error
+    if (!fs.existsSync(distPath)) {
+      throw new Error(
+        `Could not find the build directory: ${distPath}, make sure to build the client first`
+      );
+    }
   }
 
   app.use(express.static(distPath));
