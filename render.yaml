@@ -2,9 +2,12 @@ services:
   - type: web
     name: online-bank
     env: node
-    buildCommand: npm install && cd client && npm install && npm run build && cp -r dist ../dist/client/
+    buildCommand: |
+      npm install
+      cd client && npm install && npm run build
+      mkdir -p ../dist/client
+      cp -r dist/* ../dist/client/
     startCommand: npm run start:server
-    staticPublishPath: ./client/dist
     envVars:
       - key: NODE_ENV
         value: production 

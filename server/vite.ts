@@ -75,15 +75,45 @@ export function serveStatic(app: Express) {
     path.resolve(__dirname, "..", "client", "dist"),
     path.resolve(__dirname, "client", "dist"),
     path.resolve(process.cwd(), "client", "dist"),
-    path.resolve(process.cwd(), "dist", "client", "dist")
+    path.resolve(process.cwd(), "dist", "client"),
+    path.resolve(__dirname, "..", "dist", "client"),
+    path.resolve(__dirname, "dist", "client"),
+    path.resolve(process.cwd(), "dist", "public"),
+    path.resolve(__dirname, "..", "dist", "public"),
+    path.resolve(__dirname, "dist", "public")
   ];
+  
+  // Debug logging
+  console.log("Current directory:", process.cwd());
+  console.log("__dirname:", __dirname);
+  console.log("Checking these paths for client files:");
+  possiblePaths.forEach(p => console.log(" - " + p));
   
   let distPath = null;
   for (const p of possiblePaths) {
     if (fs.existsSync(p)) {
-      distPath = p;
-      log(`Found client dist at: ${distPath}`);
-      break;
+      try {
+        const files = fs.readdirSync(p);
+        console.log(`Files in ${p}:`, files);
+        if (files.includes("index.html")) {
+          distPath = p;
+          log(`Found client dist at: ${distPath}`);
+          break;
+        }
+      } catch (e) {
+        console.log(`Error reading ${p}:`, e);
+      }
+    }
+  }
+
+  // If no path with index.html was found, try any path that exists
+  if (!distPath) {
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        distPath = p;
+        log(`Using directory without index.html: ${distPath}`);
+        break;
+      }
     }
   }
 
