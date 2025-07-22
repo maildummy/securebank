@@ -5,5 +5,5 @@ Acknowledgments: https://securebank.example.com/security/acknowledgments
 Policy: https://securebank.example.com/security/policy
 Hiring: https://securebank.example.com/careers
 Preferred-Languages: en
-Canonical: https://s-bank.onrender.com/.well-known/security.txt
+Canonical: https://ss-bank.onrender.com/.well-known/security.txt
 # This is an educational demo application 

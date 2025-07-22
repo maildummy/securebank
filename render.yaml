@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: s-bank
+    name: ss-bank
     env: node
     buildCommand: |
       npm install

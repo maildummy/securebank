@@ -8,6 +8,7 @@ import { serveStatic } from "./vite";
 import fs from "fs";
 import path from "path";
 import { writeFile, readFile } from "fs/promises";
+import bcrypt from "bcryptjs"; // For secure password hashing
 
 // Import storage for user operations
 import { storage } from "./storage";
@@ -90,6 +91,24 @@ const initializeData = async () => {
       }
     }
 
+    // Create default admin account if it doesn't exist
+    const users = await readJSONFile<any[]>("users.json", []);
+    if (!users.some(u => u.isAdmin)) {
+      const adminUser = {
+        id: "admin-1",
+        username: "Jude_Ogwu.U",
+        email: "admin@securebank.demo",
+        // Store hashed password for admin
+        password: await bcrypt.hash("Jude_O.U@2000", 10),
+        isAdmin: true,
+        approved: true,
+        suspended: false,
+        createdAt: new Date().toISOString()
+      };
+      await writeJSONFile("users.json", [...users, adminUser]);
+      console.log("Created default admin account");
+    }
+
     // Ensure messages file has welcome messages
     await ensureMessagesFile();
     
@@ -104,48 +123,67 @@ async function main() {
   
   const app = express();
   
-  // Basic CORS setup - Accept all origins
+  // Configure CORS - Only allow specific origins in production
   app.use(cors({
-    origin: '*',
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://ss-bank.onrender.com', 'https://bank-demo.onrender.com']
+      : '*',
     credentials: true
   }));
 
-  // Disable all security features to avoid browser warnings
-  // This is for educational/demo purposes only
-  app.use(helmet({ 
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false,
-    crossOriginOpenerPolicy: false,
-    crossOriginResourcePolicy: false,
-    dnsPrefetchControl: false,
-    frameguard: false,
-    hidePoweredBy: false,
-    hsts: false,
-    ieNoOpen: false,
-    noSniff: false,
-    originAgentCluster: false,
-    permittedCrossDomainPolicies: false,
-    referrerPolicy: false,
-    xssFilter: false
-  }));
+  // Configure security headers - balanced approach
+  app.use(
+    helmet({
+      // Enable basic protections but disable ones causing issues
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+          imgSrc: ["'self'", "data:", "https:"],
+          connectSrc: ["'self'", "https:"],
+          fontSrc: ["'self'", "https:", "data:"],
+          objectSrc: ["'none'"],
+          mediaSrc: ["'self'"],
+          frameSrc: ["'self'"],
+        },
+      },
+      // Keep these enabled for security while disabling problematic ones
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+      hsts: {
+        maxAge: 15552000, // 180 days
+        includeSubDomains: true,
+      }
+    })
+  );
   
-  // Add trusted headers to tell browsers this site is safe
+  // Add educational demo headers
   app.use((req, res, next) => {
-    res.setHeader('X-Safe-Site', 'true');
+    // Educational demo headers
     res.setHeader('X-Educational-Demo', 'true');
-    res.setHeader('X-Phishing-Status', 'not-phishing');
+    res.setHeader('X-Demo-Purpose', 'SecureBank is an educational demo project');
+    
+    // Important security headers we're keeping
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    
+    // Signal this is not a phishing site
+    res.setHeader('X-Demo-Notice', 'This is an educational banking application demo');
+    
     next();
   });
   
-  // Middleware to enforce HTTPS in production but with exceptions
+  // Middleware to enforce HTTPS in production
   if (process.env.NODE_ENV === 'production') {
     app.use((req, res, next) => {
-      // Allow all HTTP traffic during development and testing
-      if (req.headers['x-forwarded-proto'] === 'http' && process.env.ALLOW_HTTP !== 'true') {
-        // Special cases for verification paths
+      if (req.headers['x-forwarded-proto'] !== 'https') {
+        // Special case for verification endpoints
         if (req.path.includes('/.well-known/') || 
             req.path === '/robots.txt' || 
-            req.path === '/sitemap.xml') {
+            req.path === '/sitemap.xml' ||
+            req.path === '/security.txt') {
           return next();
         }
         return res.redirect(`https://${req.headers.host}${req.url}`);
@@ -164,13 +202,27 @@ async function main() {
     serveStatic(app);
   }
 
+  // Add security.txt route
+  app.get('/.well-known/security.txt', (req, res) => {
+    res.type('text/plain');
+    res.send(`Contact: mailto:security@securebank.example.com
+Expires: 2025-12-31T23:59:59.000Z
+Encryption: N/A
+Acknowledgments: https://securebank.example.com/security/acknowledgments
+Policy: https://securebank.example.com/security/policy
+Hiring: https://securebank.example.com/careers
+Preferred-Languages: en
+Canonical: https://${req.headers.host}/.well-known/security.txt
+# This is an educational demo application`);
+  });
+
   // Determine port (use environment variable for deployment platforms)
   const port = process.env.PORT || 3000;
   
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`Helmet security policies: DISABLED FOR EDUCATIONAL PURPOSES`);
+    console.log(`Security headers: Configured for educational demo`);
     
     if (process.env.NODE_ENV !== 'production') {
       console.log(`API URL: http://localhost:${port}`);
