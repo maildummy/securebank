@@ -6,13 +6,14 @@
     "dev": "node fix-windows.js && concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "cd client && npm run dev",
     "dev:server": "nodemon --exec node --loader ts-node/esm server/index.ts",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && mkdir -p dist/client && cp -r dist/public/* dist/client/",
+    "build": "npm install && cd client && npm install && npm run build && cd .. && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && mkdir -p dist/client && cp -r client/dist/* dist/client/",
     "start": "NODE_ENV=production node dist/index.js",
     "start:server": "NODE_ENV=production node dist/index.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-popover": "^1.1.14",
+    "@radix-ui/react-tooltip": "^1.0.7",
     "@replit/vite-plugin-cartographer": "^0.1.1",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.16",

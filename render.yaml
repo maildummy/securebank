@@ -2,12 +2,7 @@ services:
   - type: web
     name: ss-bank
     env: node
-    buildCommand: |
-      npm install
-      cd client && npm install && npm run build
-      cd ..
-      mkdir -p dist/client
-      cp -r dist/public/* dist/client/
+    buildCommand: npm run build
     startCommand: npm run start:server
     envVars:
       - key: NODE_ENV
