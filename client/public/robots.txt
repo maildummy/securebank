@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://securebank-a4ob.onrender.com/sitemap.xml 
+Sitemap: https://online-bank.onrender.com/sitemap.xml 

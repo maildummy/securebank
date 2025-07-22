@@ -3,4 +3,6 @@ Expires: 2025-12-31T23:59:59.000Z
 Encryption: N/A
 Acknowledgments: https://securebank.example.com/security/acknowledgments
 Policy: https://securebank.example.com/security/policy
-Hiring: https://securebank.example.com/careers 
+Hiring: https://securebank.example.com/careers
+Preferred-Languages: en
+Canonical: https://online-bank.onrender.com/.well-known/security.txt 

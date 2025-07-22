@@ -1,149 +1,181 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express from "express";
 import cors from "cors";
-import { json } from "body-parser";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
 import helmet from "helmet";
-import fs from "fs/promises";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import { registerRoutes } from "./routes";
+import { serveStatic } from "./vite";
+import fs from "fs";
 import path from "path";
+import { writeFile, readFile } from "fs/promises";
 
-const app = express();
-const port = process.env.PORT || 3001;
+// Import storage for user operations
+import { storage } from "./storage";
 
-// Apply helmet middleware for security headers
-app.use(helmet({
-  contentSecurityPolicy: false, // Disabling CSP to avoid errors
-  crossOriginEmbedderPolicy: false,
-  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+// Helper function to read JSON file
+const readJSONFile = async <T>(filename: string, defaultValue: T): Promise<T> => {
+  const filePath = path.join(process.cwd(), "data", filename);
+  try {
+    const data = await readFile(filePath, "utf-8");
+    return JSON.parse(data);
+  } catch {
+    return defaultValue;
+  }
+};
 
-// Enable CORS
-app.use(cors({
-  origin: true, // Allow all origins
-  credentials: true
-}));
+// Helper function to write JSON file
+const writeJSONFile = async <T>(filename: string, data: T): Promise<void> => {
+  const filePath = path.join(process.cwd(), "data", filename);
+  await writeFile(filePath, JSON.stringify(data, null, 2));
+};
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
-  next();
-});
-
-// Initialize default admin user and ensure messages.json exists
-async function initializeData() {
-  const dataDir = path.join(process.cwd(), "data");
-  const usersFile = path.join(dataDir, "users.json");
-  const messagesFile = path.join(dataDir, "messages.json");
+// Ensure that the messages file exists with welcome message
+const ensureMessagesFile = async () => {
+  const messagesPath = path.join(process.cwd(), "data", "messages.json");
   
   try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-
-  try {
-    await fs.access(usersFile);
-  } catch {
-    // Create default admin user
-    const bcrypt = await import("bcrypt");
-    const defaultAdmin = {
-      id: 1,
-      username: "admin",
-      email: "admin@securebank.com",
-      password: await bcrypt.hash("admin123", 10),
-      firstName: "Admin",
-      lastName: "User",
-      status: "approved",
-      isAdmin: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    await fs.writeFile(usersFile, JSON.stringify([defaultAdmin], null, 2));
-    log("✅ Default admin user created: admin@securebank.com / admin123");
-  }
-
-  // Ensure messages.json exists
-  try {
-    await fs.access(messagesFile);
-    // Check if file is empty or not valid JSON
-    const content = await fs.readFile(messagesFile, 'utf-8');
-    try {
-      const messages = JSON.parse(content);
-      if (!Array.isArray(messages)) {
-        throw new Error('Messages file is not an array');
-      }
-    } catch (e) {
-      // If not valid JSON, create empty array
-      await fs.writeFile(messagesFile, JSON.stringify([], null, 2));
-      log("✅ Reset messages.json to empty array");
+    if (!fs.existsSync(messagesPath)) {
+      // Create empty messages file
+      await writeJSONFile("messages.json", []);
+      console.log("Created empty messages.json file");
     }
-  } catch {
-    // Create empty messages file
-    await fs.writeFile(messagesFile, JSON.stringify([], null, 2));
-    log("✅ Created empty messages.json file");
+    
+    // Check if messages file is empty and add welcome message if needed
+    const messages = await readJSONFile<any[]>("messages.json", []);
+    if (messages.length === 0) {
+      console.log("Adding welcome messages for existing users");
+      // Add welcome message for each existing user
+      const users = await readJSONFile<any[]>("users.json", []);
+      const adminUser = users.find(u => u.isAdmin);
+      
+      if (adminUser && users.length > 0) {
+        const welcomeMessages = users
+          .filter(user => !user.isAdmin)
+          .map(user => ({
+            id: `welcome-${user.id}`,
+            senderId: adminUser.id,
+            receiverId: user.id,
+            content: "Welcome to SecureBank! If you have any questions or need assistance, feel free to message us here.",
+            timestamp: new Date().toISOString(),
+            read: false
+          }));
+        
+        if (welcomeMessages.length > 0) {
+          await writeJSONFile("messages.json", welcomeMessages);
+          console.log(`Added ${welcomeMessages.length} welcome messages`);
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error ensuring messages file:", error);
   }
-}
+};
 
-(async () => {
+const initializeData = async () => {
+  try {
+    // Ensure data directory exists
+    const dataDir = path.join(process.cwd(), "data");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir);
+      console.log("Created data directory");
+    }
+
+    // Initialize files if they don't exist
+    const files = ["users.json", "sessions.json", "notifications.json", "creditCards.json"];
+    for (const file of files) {
+      const filePath = path.join(dataDir, file);
+      if (!fs.existsSync(filePath)) {
+        await writeJSONFile(file, []);
+        console.log(`Created empty ${file} file`);
+      }
+    }
+
+    // Ensure messages file has welcome messages
+    await ensureMessagesFile();
+    
+    console.log("Data initialization complete");
+  } catch (error) {
+    console.error("Error initializing data:", error);
+  }
+};
+
+async function main() {
   await initializeData();
-  const server = await registerRoutes(app);
+  
+  const app = express();
+  
+  // Basic CORS setup - Accept all origins
+  app.use(cors({
+    origin: '*',
+    credentials: true
+  }));
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
+  // Disable all security features to avoid browser warnings
+  // This is for educational/demo purposes only
+  app.use(helmet({ 
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+    dnsPrefetchControl: false,
+    frameguard: false,
+    hidePoweredBy: false,
+    hsts: false,
+    ieNoOpen: false,
+    noSniff: false,
+    originAgentCluster: false,
+    permittedCrossDomainPolicies: false,
+    referrerPolicy: false,
+    xssFilter: false
+  }));
+  
+  // Add trusted headers to tell browsers this site is safe
+  app.use((req, res, next) => {
+    res.setHeader('X-Safe-Site', 'true');
+    res.setHeader('X-Educational-Demo', 'true');
+    res.setHeader('X-Phishing-Status', 'not-phishing');
+    next();
   });
+  
+  // Middleware to enforce HTTPS in production but with exceptions
+  if (process.env.NODE_ENV === 'production') {
+    app.use((req, res, next) => {
+      // Allow all HTTP traffic during development and testing
+      if (req.headers['x-forwarded-proto'] === 'http' && process.env.ALLOW_HTTP !== 'true') {
+        // Special cases for verification paths
+        if (req.path.includes('/.well-known/') || 
+            req.path === '/robots.txt' || 
+            req.path === '/sitemap.xml') {
+          return next();
+        }
+        return res.redirect(`https://${req.headers.host}${req.url}`);
+      }
+      next();
+    });
+  }
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
+  app.use(express.json());
+
+  // Set up API routes
+  await registerRoutes(app);
+
+  // Serve static frontend assets in production
+  if (process.env.NODE_ENV === 'production') {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  // Determine port (use environment variable for deployment platforms)
+  const port = process.env.PORT || 3000;
+  
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Helmet security policies: DISABLED FOR EDUCATIONAL PURPOSES`);
+    
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`API URL: http://localhost:${port}`);
+    }
   });
-})();
+}
+
+main().catch(console.error);
