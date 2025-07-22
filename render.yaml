@@ -1,21 +1,10 @@
 services:
   - type: web
-    name: online-bank-backend
+    name: online-bank
     env: node
-    buildCommand: npm install
+    buildCommand: npm install && cd client && npm install && npm run build
     startCommand: npm run start:server
+    staticPublishPath: ./client/dist
     envVars:
       - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 5000
-  
-  - type: web
-    name: online-bank
-    env: static
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: ./client/dist
-    routes:
-      - type: rewrite
-        source: /api/*
-        destination: https://online-bank-backend.onrender.com/api/* 
+        value: production 
