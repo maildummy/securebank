@@ -7,7 +7,7 @@ services:
       cd client && npm install && npm run build
       cd ..
       mkdir -p dist/client
-      cp -r client/dist/* dist/client/
+      cp -r dist/public/* dist/client/
     startCommand: npm run start:server
     envVars:
       - key: NODE_ENV
