@@ -8,10 +8,11 @@ services:
       npm install
       npm run build
       cd ..
-      esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+      esbuild server/index.ts server/optimize.ts server/performance.ts server/server-wrapper.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
       mkdir -p dist/client
       cp -r client/dist/* dist/client/
-    startCommand: npm run start:server
+      node optimize-assets.js
+    startCommand: NODE_ENV=production node dist/server-wrapper.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -20,4 +21,8 @@ services:
       - key: SECURE_SITE
         value: "true"
       - key: EDUCATIONAL_DEMO
-        value: "true" 
+        value: "true"
+      - key: ENABLE_CACHE
+        value: "true"
+      - key: COMPRESSION_LEVEL
+        value: "6" 
