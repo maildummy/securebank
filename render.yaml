@@ -1,28 +1,12 @@
 services:
   - type: web
-    name: ss-bank
+    name: securebank
     env: node
-    buildCommand: |
-      npm install
-      cd client
-      npm install
-      npm run build
-      cd ..
-      esbuild server/index.ts server/optimize.ts server/performance.ts server/server-wrapper.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
-      mkdir -p dist/client
-      cp -r client/dist/* dist/client/
-      node optimize-assets.js
-    startCommand: NODE_ENV=production node dist/server-wrapper.js
+    plan: free
+    buildCommand: cd /opt/render/project/src && npm install && cd client && npm install && npm run build && cd .. && esbuild server/index.ts server/optimize.ts server/performance.ts server/server-wrapper.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && mkdir -p dist/client && cp -r client/dist/* dist/client/ && node optimize-assets.js
+    startCommand: cd /opt/render/project/src && NODE_ENV=production node dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
-      - key: SECURE_SITE
-        value: "true"
-      - key: EDUCATIONAL_DEMO
-        value: "true"
-      - key: ENABLE_CACHE
-        value: "true"
-      - key: COMPRESSION_LEVEL
-        value: "6" 
+        value: 10000 
