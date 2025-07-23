@@ -21,6 +21,9 @@ const cache = new NodeCache({
   checkperiod: 60 // Check for expired keys every 60 seconds
 });
 
+console.log("Current directory:", process.cwd());
+console.log("__dirname:", __dirname);
+
 // PERFORMANCE OPTIMIZATIONS
 
 // Enable compression
@@ -87,10 +90,38 @@ app.use('/api/user/me', apiCache(30)); // 30 seconds
 app.use('/api/notifications', apiCache(60)); // 1 minute
 
 // Optimize static file serving with compression
-// Check both possible client build locations
-const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
-const distClientPath = path.join(__dirname, 'client');
-const staticPath = fs.existsSync(clientDistPath) ? clientDistPath : distClientPath;
+// Check all possible client build locations
+const possiblePaths = [
+  path.join(process.cwd(), 'client', 'dist'),
+  path.join(process.cwd(), 'dist', 'client', 'dist'),
+  path.join(process.cwd(), 'client', 'dist'),
+  path.join(process.cwd(), 'dist', 'client'),
+  path.join(__dirname, 'client'),
+  path.join(__dirname, '..', 'dist', 'client'),
+  path.join(__dirname, 'public'),
+  path.join(process.cwd(), 'dist', 'public'),
+  path.join(__dirname, '..', 'dist', 'public')
+];
+
+console.log("Checking these paths for client files:");
+possiblePaths.forEach(p => console.log(" -", p));
+
+let staticPath = '';
+for (const p of possiblePaths) {
+  if (fs.existsSync(p)) {
+    try {
+      const files = fs.readdirSync(p);
+      if (files.includes('index.html')) {
+        staticPath = p;
+        console.log(`4:${new Date().getMinutes()}:${new Date().getSeconds()} AM [express] Found client dist at: ${staticPath}`);
+        break;
+      }
+      console.log(`Files in ${p}:`, files);
+    } catch (err) {
+      console.error(`Error reading directory ${p}:`, err);
+    }
+  }
+}
 
 // Add Cache-Control headers for static assets
 app.use('/assets', (req, res, next) => {
@@ -100,21 +131,16 @@ app.use('/assets', (req, res, next) => {
 });
 
 // Serve static files with proper headers
-app.use(express.static(staticPath, {
-  maxAge: '1d', // Default cache time
-  immutable: true,
-  lastModified: true
-}));
+if (staticPath) {
+  app.use(express.static(staticPath, {
+    maxAge: '1d', // Default cache time
+    immutable: true,
+    lastModified: true
+  }));
+}
 
-// Import and initialize the original server
+// Import the original server
 import './index.js';
-
-// If the original server doesn't start listening, we will
-setTimeout(() => {
-  app.listen(port, () => {
-    console.log(`Optimized server running on port ${port}`);
-  });
-}, 1000);
 
 // Export the app for testing
 export default app; 
