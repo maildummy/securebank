@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^3.3.2",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-popover": "^1.1.14",
+    "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@replit/vite-plugin-cartographer": "^0.1.1",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
