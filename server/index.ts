@@ -1,7 +1,7 @@
 // This file is the entry point for the server. It creates an Express server,
 // configures it, and starts it.
 
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import compression from 'compression';
 
-import { expressApp as createRoutes } from './routes';
+import { registerRoutes } from './routes';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -166,7 +166,7 @@ if (process.env.NODE_ENV === 'production' && process.env.SECURE_SITE === 'true')
 }
 
 // Create routes
-createRoutes(app);
+registerRoutes(app);
 
 // Check for client build files in multiple possible locations
 const possibleClientPaths = [
@@ -196,7 +196,7 @@ if (clientBuildPath) {
   }));
   
   // Serve index.html for any non-API routes (SPA fallback)
-  app.get('*', (req, res) => {
+  app.get('*', (req: Request, res: Response, next: NextFunction) => {
     // Skip API routes and well-known paths
     if (req.url.startsWith('/api') || req.url.startsWith('/.well-known')) {
       return next();

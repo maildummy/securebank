@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import { setupCompression, staticAssetCache, cacheMiddleware, preloadData } from './optimize';
+import { setupCompression, staticAssetCache, cacheMiddleware, preloadData } from './optimize.js';
 
 /**
  * Apply performance optimizations to the Express application
