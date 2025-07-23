@@ -37,12 +37,6 @@ export default defineConfig({
           'query': ['@tanstack/react-query']
         }
       }
-    },
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
     }
   },
   server: {
