@@ -5,7 +5,9 @@ import {
   Message, 
   Session, 
   CreditCardDetails, 
-  InsertCreditCardDetails 
+  InsertCreditCardDetails,
+  Notification,
+  CreditCard
 } from "@shared/schema";
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -52,6 +54,27 @@ export interface IStorage {
 }
 
 class LocalFileStorage implements IStorage {
+  // Expose data structures for direct access in routes.ts
+  public users: any[] = [];
+  public sessions: any[] = [];
+  public messages: any[] = [];
+  public notifications: any[] = [];
+  public creditCards: any[] = [];
+  
+  // Initialize data from files
+  public async initializeData(): Promise<void> {
+    this.users = await this.readJSONFile<any[]>("users.json", []);
+    this.sessions = await this.readJSONFile<any[]>("sessions.json", []);
+    this.messages = await this.readJSONFile<any[]>("messages.json", []);
+    this.notifications = await this.readJSONFile<any[]>("notifications.json", []);
+    this.creditCards = await this.readJSONFile<any[]>("creditCards.json", []);
+  }
+  
+  // Save data to files
+  public async saveData(dataType: "users" | "sessions" | "messages" | "notifications" | "creditCards"): Promise<void> {
+    await this.writeJSONFile(`${dataType}.json`, this[dataType]);
+  }
+  
   private async ensureDataDir(): Promise<void> {
     try {
       await fs.access(DATA_DIR);

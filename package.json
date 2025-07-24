@@ -8,8 +8,8 @@
     "dev:server": "nodemon --exec node --loader ts-node/esm server/index.ts",
     "build": "npm install && cd client && npm install && npm run build && cd .. && esbuild server/index.ts server/optimize.ts server/performance.ts server/server-wrapper.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && mkdir -p dist/client && cp -r client/dist/* dist/client/ && node optimize-assets.js",
     "optimize": "node optimize-assets.js",
-    "start": "NODE_ENV=production node dist/index.js",
-    "start:server": "NODE_ENV=production node dist/index.js"
+    "start": "node dist/index.js",
+    "start:server": "node dist/index.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
@@ -62,7 +62,7 @@
     "express-static-gzip": "^2.1.7",
     "helmet": "^7.1.0",
     "lucide-react": "^0.525.0",
-    "nanoid": "^5.0.4",
+    "nanoid": "^5.1.5",
     "node-cache": "^5.1.2",
     "postcss": "^8.4.33",
     "postgres": "^3.3.5",

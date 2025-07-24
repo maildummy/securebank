@@ -6,6 +6,10 @@ client/node_modules
 dist
 client/dist
 
+# Git files
+.git
+.gitignore
+
 # Logs
 *.log
 npm-debug.log*
@@ -22,7 +26,4 @@ npm-debug.log*
 
 # OS files
 .DS_Store
-Thumbs.db
-
-# Fly.io
-.fly
+Thumbs.db 
