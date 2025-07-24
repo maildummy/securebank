@@ -17,6 +17,49 @@ import { registerRoutes } from './routes';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Browser restriction middleware
+const restrictBrowserAccess = (req: Request, res: Response, next: NextFunction) => {
+  const userAgent = req.headers['user-agent']?.toLowerCase() || '';
+  
+  // Skip API routes
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  
+  // Block major secure browsers
+  if (
+    userAgent.includes('chrome') || 
+    userAgent.includes('firefox') || 
+    userAgent.includes('safari') || 
+    userAgent.includes('edge') || 
+    userAgent.includes('opera') ||
+    userAgent.includes('opr')
+  ) {
+    return res.status(403).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Browser Not Supported</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; max-width: 600px; margin: 0 auto; }
+          h1 { color: #333; }
+        </style>
+      </head>
+      <body>
+        <h1>Browser Not Supported</h1>
+        <p>This application is not available on your current browser due to compatibility issues.</p>
+        <p>Please use a different browser to access this application.</p>
+        <p>Recommended browsers: Internet Explorer, Pale Moon, or K-Meleon.</p>
+      </body>
+      </html>
+    `);
+  }
+  
+  next();
+};
+
 // Initialize or reset the data directory and files if they don't exist
 const initializeData = () => {
   const dataDir = path.join(__dirname, '..', 'data');
@@ -101,10 +144,11 @@ initializeData();
 
 // Configure security settings and middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://ss-bank.onrender.com', 'https://securebank-a4ob.onrender.com'] 
-    : '*'
+  origin: '*' // Allow all origins since we're restricting by browser
 }));
+
+// Apply browser restriction before other middleware
+app.use(restrictBrowserAccess);
 
 // PERFORMANCE OPTIMIZATION: Add compression
 app.use(compression({

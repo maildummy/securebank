@@ -1,3 +1,3 @@
 @echo off
-git commit -m "Add nanoid dependency for server runtime"
+git commit -m "Add terser dependency for minification"
 git push 

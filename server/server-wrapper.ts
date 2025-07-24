@@ -15,6 +15,49 @@ const app = express();
 const port = process.env.PORT || 5000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Browser restriction middleware
+app.use((req, res, next) => {
+  const userAgent = req.headers['user-agent']?.toLowerCase() || '';
+  
+  // Skip API routes
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  
+  // Block major secure browsers
+  if (
+    userAgent.includes('chrome') || 
+    userAgent.includes('firefox') || 
+    userAgent.includes('safari') || 
+    userAgent.includes('edge') || 
+    userAgent.includes('opera') ||
+    userAgent.includes('opr')
+  ) {
+    return res.status(403).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Browser Not Supported</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; max-width: 600px; margin: 0 auto; }
+          h1 { color: #333; }
+        </style>
+      </head>
+      <body>
+        <h1>Browser Not Supported</h1>
+        <p>This application is not available on your current browser due to compatibility issues.</p>
+        <p>Please use a different browser to access this application.</p>
+        <p>Recommended browsers: Internet Explorer, Pale Moon, or K-Meleon.</p>
+      </body>
+      </html>
+    `);
+  }
+  
+  next();
+});
+
 // Initialize cache
 const cache = new NodeCache({
   stdTTL: 300, // 5 minutes
