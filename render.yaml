@@ -2,11 +2,25 @@ services:
   - type: web
     name: securebank
     env: node
-    plan: free
-    buildCommand: cd /opt/render/project/src && npm install && cd client && npm install && npm run build && cd .. && esbuild server/index.ts server/optimize.ts server/performance.ts server/server-wrapper.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && mkdir -p dist/client && cp -r client/dist/* dist/client/ && node optimize-assets.js
-    startCommand: cd /opt/render/project/src && NODE_ENV=production node dist/index.js
+    buildCommand: |
+      npm install
+      cd client
+      npm install
+      npm run build
+      cd ..
+      esbuild server/index.ts server/server-wrapper.ts server/optimize.ts server/performance.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+      mkdir -p dist/client
+      cp -r client/dist/* dist/client/
+    startCommand: NODE_ENV=production node dist/index.js
+    healthCheckPath: /api/health
     envVars:
+      - key: SECURE_SITE
+        value: "true"
+      - key: EDUCATIONAL_DEMO
+        value: "true"
+      - key: ENABLE_CACHE
+        value: "true"
+      - key: COMPRESSION_LEVEL
+        value: "6"
       - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000 
+        value: "production" 

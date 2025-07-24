@@ -261,6 +261,11 @@ Hiring: https://ss-bank.onrender.com/careers
 `);
 });
 
+// Health check endpoint for Railway
+app.get('/api/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
